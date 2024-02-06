@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
+import { styles } from './styles';
 
 const DashboardScreen = ({ navigation }) => {
     // Exemplo de dados para o gráfico de linha
@@ -32,18 +33,5 @@ const chartConfig = {
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     // outras configurações de estilo
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    // outros estilos
-});
 
 export default DashboardScreen;

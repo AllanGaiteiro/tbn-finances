@@ -1,5 +1,6 @@
 
 import { View, Text, StyleSheet, Button } from 'react-native';
+import { styles } from './styles';
 
 const ExpenseListScreen = ({ navigation }) => {
     // Lógica para listar e adicionar gastos
