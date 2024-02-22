@@ -10,9 +10,9 @@ export const IncomeSummaryCard = () => {
 
     useEffect(() => {
         // Assinaturas retornarão funções para desinscrever
-        const unsubAllReceived = incomeRepository.observeTotalReceivedThisMonth(setAllReceived);
-        const unsubAllIncomes = incomeRepository.observeTotalForCurrentMonthIncludingRecurrence(setAllIncomes);
-        const unsubAllToReceive = incomeRepository.observeTotalToReceive(setAllToReceive);
+        const unsubAllReceived = incomeRepository.observeReceivedThisMonth(setAllReceived);
+        const unsubAllToReceive = incomeRepository.observeToReceiveThisMonth(setAllToReceive);
+        const unsubAllIncomes = incomeRepository.observeToReceivedAllThisMonth(setAllIncomes);
 
         // Quando qualquer dado é atualizado, removemos o indicador de carregamento
         const unsubscribes = [unsubAllReceived, unsubAllIncomes, unsubAllToReceive];
@@ -37,7 +37,7 @@ export const IncomeSummaryCard = () => {
     }
     return (
         <View style={styles.card}>
-            <Text style={styles.cardTitle}>Resumo de Rendas</Text>
+            <Text style={styles.cardTitle}>Resumo de Entradas Do mes</Text>
             <View style={styles.row}>
                 <Text style={styles.label}>Total Recebido:</Text>
                 <Text style={styles.totalValue}>R$ {allReceived.toFixed(2)}</Text>

@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const typesOptions = [
-  { label: 'Oferta da Igreja', value: 'oferta_igreja', color: '#2196F3' },
-  { label: 'Oferta de Amor', value: 'oferta_alguem', color: '#2196F3' },
+  { label: 'Alçada', value: 'oferta_alcada', color: '#2196F3' },
+  { label: 'Voluntaria', value: 'oferta_voluntaria', color: '#2196F3' },
+  { label: 'Mensal', value: 'oferta_mensal', color: '#2196F3' },
 ];
 export const TypesSlider = ({ currentType, onTypeChange }) => {
   // Função para determinar a cor de fundo com base no status atual

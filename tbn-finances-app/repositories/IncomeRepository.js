@@ -8,37 +8,6 @@ class IncomeRepository {
         this.docRef = (id) => doc(firestore, 'finances/igreja/incomes', id);
     }
 
-    async handleRecurrenceUpdate(income) {
-        const batch = writeBatch(firestore);
-
-        try {
-            // Atualiza a income original se o status é alterado para 'recebido'
-            if (income.status === 'recebido' && income.isRecurrence) {
-                const originalIncomeRef = this.docRef(income.id);
-                batch.update(originalIncomeRef, {
-                    lastRecurrenceDate: new Date(), // Define a data da última recorrência
-                    // Mantém o status atual, ou pode definir outro status conforme a necessidade
-                });
-
-                // Cria uma nova income baseada na recorrente, com referência à original
-                const newIncomeData = {
-                    ...income,
-                    recurrenceId: income.id, // Referência à renda recorrente original
-                    isRecurrence: false, // A nova renda não é mais uma recorrência
-                    receivedDate: new Date(), // Define a data de recebimento para a nova renda
-                };
-                delete newIncomeData.id; // Remove o id para garantir a criação de um novo documento
-                batch.set(doc(this.collectionRef), newIncomeData);
-            }
-
-            await batch.commit();
-            console.log("Recurrence update and new income creation successful.");
-        } catch (error) {
-            console.error("Error handling recurrence update: ", error);
-            throw error; // Relança o erro para tratamento externo, se necessário
-        }
-    }
-
     // Observar as mudanças em tempo real e retornar os incomes
     observeIncomes(setIncomes) {
         const q = query(this.collectionRef, orderBy("receivedDate", "desc"));
@@ -88,33 +57,7 @@ class IncomeRepository {
         return unsubscribe;
     }
 
-    observeTotalThisMonth(setTotalReceived) {
-        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-
-        const q = query(this.collectionRef,
-            where("receivedDate", ">=", startOfMonth),
-            where("receivedDate", "<=", endOfMonth),
-            where("status", "in", ["recebido", "em_progresso"]));
-
-        return onSnapshot(q, (snapshot) => {
-            const totalReceived = snapshot.docs.reduce((acc, doc) => acc + doc.data().amount, 0);
-            setTotalReceived(totalReceived);
-        });
-    }
-
-    observeRecurrence(setTotalRecurence) {
-        const q = query(this.collectionRef,
-            where("isRecurrence", "==", true),
-            where("status", "in", ["em_progresso"]));
-
-        return onSnapshot(q, (snapshot) => {
-            const totalReceived = snapshot.docs.reduce((acc, doc) => acc + doc.data().amount, 0);
-            setTotalRecurence(totalReceived);
-        });
-    }
-
-    observeTotalForCurrentMonthIncludingRecurrence(setTotalAmount) {
+    observeToReceivedAllThisMonth(setTotalAmount) {
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
         const currentDay = new Date().getDate();
@@ -123,11 +66,12 @@ class IncomeRepository {
         const qNonRecurrent = query(this.collectionRef,
             where("receivedDate", ">=", startOfMonth),
             where("receivedDate", "<=", endOfMonth),
-            where("status", "in", ["recebido", "em_progresso"]));
+            where("status", "in", ["recebido"]));
 
         // Query para buscar todas as rendas recorrentes
         const qRecurrent = query(this.collectionRef,
-            where("isRecurrence", "==", true));
+            where("lastRecurrenceDate", "<=", startOfMonth),
+            where("status", "==", "em_progresso"));
 
         let totalNonRecurrent = 0;
         let totalRecurrent = 0;
@@ -138,12 +82,9 @@ class IncomeRepository {
         });
 
         const unsubscribeRecurrent = onSnapshot(qRecurrent, (snapshot) => {
-            snapshot.docs.filter(d => !d.data()?.lastRecurrenceDate || !(d.data().lastRecurrenceDate <= startOfMonth)).forEach(doc => {
+            snapshot.docs.forEach(doc => {
                 const data = doc.data();
-                // Assuma que todos os recorrentes se aplicam ao mês atual, ou verifique o dia específico se necessário
-                if (data.recurrenceDay && data.recurrenceDay >= currentDay) {
-                    totalRecurrent += data.amount;
-                }
+                totalRecurrent += data.amount;
             });
             setTotalAmount(totalNonRecurrent + totalRecurrent);
         });
@@ -155,7 +96,7 @@ class IncomeRepository {
     }
 
     // Método modificado para escutar o valor total recebido do mês
-    observeTotalReceivedThisMonth(setTotalReceived) {
+    observeReceivedThisMonth(setTotalReceived) {
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
@@ -170,32 +111,16 @@ class IncomeRepository {
         });
     }
 
-
-
-    // Método modificado para escutar o maior valor do mês
-    observeHighestIncomeThisMonth(setHighestIncome) {
+    // Método modificado para escutar o valor total a receber
+    observeToReceiveThisMonth(setTotalToReceive) {
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
         const q = query(this.collectionRef,
-            where("receivedDate", ">=", startOfMonth),
-            where("receivedDate", "<=", endOfMonth));
-
-        return onSnapshot(q, (snapshot) => {
-            const highestIncome = snapshot.docs.reduce((max, doc) => Math.max(max, doc.data().amount), 0);
-            setHighestIncome(highestIncome);
-        });
-    }
-
-    // Método modificado para escutar o valor total a receber
-    observeTotalToReceive(setTotalToReceive) {
-        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-
-        const q = query(this.collectionRef, 
+            where("lastRecurrenceDate", "<=", startOfMonth),
             where("status", "==", "em_progresso"));
 
         return onSnapshot(q, (snapshot) => {
-            const totalToReceive = snapshot.docs.filter(d => !(d.data().lastRecurrenceDate <= startOfMonth)).reduce((acc, doc) => acc + doc.data().amount, 0);
+            const totalToReceive = snapshot.docs.reduce((acc, doc) => acc + doc.data().amount, 0);
             setTotalToReceive(totalToReceive);
         });
     }
@@ -212,12 +137,57 @@ class IncomeRepository {
     // Atualizar um income existente
     async updateIncome(income) {
         try {
-            console.log(income)
             const incomeRef = doc(this.collectionRef, income.id);
             await updateDoc(incomeRef, income);
             console.log("Income successfully updated - ", income.id);
         } catch (error) {
             console.error("Error updating income: ", income.id, " - ", error);
+        }
+    }
+
+    async handleRecurrenceUpdate(income) {
+        const batch = writeBatch(firestore);
+
+        try {
+            // Atualiza a income original se o status é alterado para 'recebido'
+            if (income.isRecurrence) {
+                const originalIncomeRef = this.docRef(income.id);
+                batch.update(originalIncomeRef, {
+                    lastRecurrenceDate: new Date(), // Define a data da última recorrência
+                    // Mantém o status atual, ou pode definir outro status conforme a necessidade
+                });
+
+                // Cria uma nova income baseada na recorrente, com referência à original
+                const newIncomeData = {
+                    ...income.toFirestore(),
+                    recurrenceId: income.id, // Referência à renda recorrente original
+                    isRecurrence: false, // A nova renda não é mais uma recorrência
+                    receivedDate: new Date(),
+                    status: 'recebido',
+                    type: 'oferta_voluntaria',
+                };
+                delete newIncomeData.id; // Remove o id para garantir a criação de um novo documento
+                batch.set(doc(this.collectionRef), newIncomeData);
+            }
+
+            await batch.commit();
+            console.log("Recurrence update and new income creation successful.");
+        } catch (error) {
+            console.error("Error handling recurrence update: ", error);
+            throw error; // Relança o erro para tratamento externo, se necessário
+        }
+    }
+    async cancelIncome(income) {
+        try {
+            income.status = 'cancelado';
+            // income.recurrenceDay = null;
+            income.receivedDate = null;
+            const cancelIncome = income.toFirestore();
+            const incomeRef = doc(this.collectionRef, cancelIncome.id);
+            await updateDoc(incomeRef, cancelIncome);
+            console.log("Income successfully canceled - ", cancelIncome.id);
+        } catch (error) {
+            console.error("Error canceled income: ", cancelIncome.id, " - ", error);
         }
     }
 

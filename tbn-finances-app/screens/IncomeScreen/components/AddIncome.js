@@ -3,18 +3,19 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Income } from '../../../entity/Income';
 import { FormIncome } from './FormIncome';
 
-export function AddIncome({ income = new Income() }) {
+export function AddIncome() {
     const [isFormVisible, setIsFormVisible] = useState(false);
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity
+            {!isFormVisible && <TouchableOpacity
                 style={styles.button}
                 onPress={() => setIsFormVisible(!isFormVisible)}>
                 <Text style={styles.buttonText}>{isFormVisible ? 'Fechar' : 'Adicionar Renda'}</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>}
+
             {isFormVisible &&
-                <FormIncome income={new Income()}  setIsFormVisible={setIsFormVisible}  />
+                <FormIncome income={new Income()} isFormVisible={isFormVisible} setIsFormVisible={setIsFormVisible} />
             }
         </View>
     );

@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, StyleSheet, Switch } from 'react-native';
+import { View, Alert, StyleSheet, Text } from 'react-native';
 import { Income } from '../../../entity/Income';
-import { FormFieldDatePikerWeb } from './FormFieldDatePikerWeb';
-import { FormFieldDatePikerMobile } from './FormFieldDatePikerMobile';
 import { incomeRepository } from '../../../repositories/IncomeRepository';
-import { FormFieldPiker } from './FormFieldPiker';
-import { StatusSlider } from './StatusSlider';
-import { TypesSlider } from './TypeSlider';
-import RecurrenceSwitch from './RecurrenceSwitch';
+import { IncomeInputType } from './input/IncomeInputType';
+import { IncomeInputDonnorName } from './input/IncomeInputDonnorName';
+import { IncomeInputAmount } from './input/IncomeInputAmount';
+import { IncomeInputIsRecurrence } from './input/IncomeInputIsRecurrence';
+import { IncomeInputReceivedDateMobile } from './input/IncomeInputReceivedDateMobile';
+import { IncomeButtonCancel } from './button/IncomeButtonCancel';
+import { IncomeButtonSave } from './button/IncomeButtonSave';
+import { IncomeInputReceivedDateWeb } from './input/IncomeInputReceivedDateWeb';
+import { IncomeInputLastRecurrenceDateMobile } from './input/IncomeInputLastRecurrenceDateMobile';
+import { IncomeInputLastRecurrenceDateWeb } from './input/IncomeInputLastRecurrenceDateWeb';
+import { IncomeButtonBack } from './button/IncomeButtonBack';
 
 
-export function FormIncome({ income: incomeItem, setIsFormVisible }) {
-    const [showDatePicker, setShowDatePicker] = useState(false);
+export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible }) {
     const [income, setIncome] = useState(incomeItem || new Income());
-
+    const lastRecurrenceDate = income?.lastRecurrenceDate || null;
     const formValidateAmount = (income) => !income.amount || isNaN(income.amount) || income.amount <= 0;
     const formValidateType = (income) => !income.type;
     const formValidateIsRecurrence = (income) => !income.isRecurrence && !income.receivedDate;
@@ -37,20 +41,17 @@ export function FormIncome({ income: incomeItem, setIsFormVisible }) {
         return true;
     };
 
-    const handleAddIncome = async () => {
+    const handleSetIncome = async () => {
         if (validateForm()) {
-            // Tente adicionar a renda ao Firestore
+
             try {
-                if (income.id && income.isRecurrence && income.status === 'recebido') {
-                    console.log('csadcsadxsa')
+                if (income.id && income.type === 'oferta_mensal' ) {
                     await incomeRepository.handleRecurrenceUpdate(income)
                 } else if (income.id) {
                     await incomeRepository.updateIncome(income)
                 } else {
-                    await incomeRepository.addIncome({
-                        ...income,
-                        creationDate: new Date() // Data de criação definida no momento da adição
-                    });
+                    income.creationDate = new Date()
+                    await incomeRepository.addIncome(income);
                 }
 
                 Alert.alert("Sucesso", "Renda adicionada com sucesso!");
@@ -63,103 +64,39 @@ export function FormIncome({ income: incomeItem, setIsFormVisible }) {
         }
     };
 
-    const handleInputChange = (name, value) => {
-        console.log(name, value)
-        if ((name === 'amount' || name === 'recurrenceDay') && isNaN(value)) {
-            value = 0;
-        }
-
-        if (name === 'isRecurrence' && value === true) {
-            handleInputChange('receivedDate', null);
-            handleInputChange('recurrenceDay', 28);
-        }
-
-        if (name === 'isRecurrence' && value === false) {
-            handleInputChange('receivedDate', new Date());
-            handleInputChange('recurrenceDay', null);
-        }
-
-        setIncome(prevIncome => ({
-            ...prevIncome,
-            [name]: value
-        }));
-
-    };
     return <View style={styles.form}>
-        <TypesSlider
-            currentType={income.type}
-            onTypeChange={(value) => handleInputChange('type', value)}
-        />
-        {income.type !== 'oferta_igreja' &&
-            <TextInput
-                style={styles.input}
-                placeholder="Nome do Doador"
-                value={income.donorName}
-                onChangeText={(text) => handleInputChange('donorName', text)} />}
-        <StatusSlider
-            currentStatus={income.status}
-            onStatusChange={(value) => handleInputChange('status', value)}
-        />
-        {income.status === 'recebido' &&
-            <FormFieldPiker field="account" income={income} handleInputChange={handleInputChange} />}
-        <TextInput
-            placeholder="Montante"
-            value={String(income.amount)}
-            onChangeText={(text) => handleInputChange('amount', parseFloat(text))}
-            keyboardType="numeric"
-            style={styles.input} />
-        <View style={styles.recurrenceRow}>
-            <RecurrenceSwitch
-                isRecurrence={income.isRecurrence}
-                onToggle={(value) => handleInputChange('isRecurrence', value)}
-            />
+        <Text style={styles.title}>{income.id ? 'Detalhes da ' : 'Adicionar'} Oferta</Text>
 
-            {/*income?.isRecurrence && (
-                <TextInput
-                    style={[styles.input, styles.recurrenceInput]}
-                    placeholder="Dia (1-31)"
-                    value={String(income.recurrenceDay)}
-                    onChangeText={(text) => handleInputChange('recurrenceDay', parseInt(text))}
-                    keyboardType="numeric"
-                />
-            )*/}
-            {/*!income?.isRecurrence &&
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => setShowDatePicker(true)}>
-                    <Text style={styles.buttonText}>Data de Recebimento</Text>
-                </TouchableOpacity>
-        */}
+        <IncomeInputType income={income} setIncome={setIncome} />
+
+        <IncomeInputDonnorName isVisible={income.type !== 'oferta_alcada'} income={income} setIncome={setIncome} />
+
+        <IncomeInputAmount income={income} setIncome={setIncome} />
+        
+        <IncomeInputReceivedDateMobile isVisible={!income?.isRecurrence} setIncome={setIncome} />
+        <IncomeInputReceivedDateWeb isVisible={!income?.isRecurrence} income={income} setIncome={setIncome} />
+
+        <IncomeInputLastRecurrenceDateMobile isVisible={income?.isRecurrence && income?.id} income={income} setIsFormVisible={setIsFormVisible}  />
+        <IncomeInputLastRecurrenceDateWeb isVisible={income?.isRecurrence && income?.id} income={income} setIsFormVisible={setIsFormVisible}  />
+        
+        <IncomeButtonCancel isVisible={income?.id} income={income} setIsFormVisible={setIsFormVisible} />
+
+        <View style={styles.datePickerContainer}>
+            <IncomeButtonSave formValidate={formValidate} save={handleSetIncome} />
+            <IncomeButtonBack setIsFormVisible={setIsFormVisible} />
         </View>
-
-        {income?.isRecurrence &&
-            <TextInput
-                style={styles.input}
-                placeholder="Dia da recorrência (1-31)"
-                value={String(income.recurrenceDay)}
-                onChangeText={(text) => handleInputChange('recurrenceDay', parseInt(text))}
-                keyboardType="numeric"
-            />
-        }
-        {!income?.isRecurrence &&
-            <TouchableOpacity
-                style={styles.receivedButton}
-                onPress={() => setShowDatePicker(true)}>
-                <Text style={styles.buttonText}>Data de Recebimento</Text>
-            </TouchableOpacity>
-        }
-
-        {showDatePicker && (
-            <FormFieldDatePikerMobile setShowDatePicker={setShowDatePicker} handleInputChange={handleInputChange} />
-        )}
-        <FormFieldDatePikerWeb income={income} handleInputChange={handleInputChange} />
-        <TouchableOpacity disabled={formValidate()} style={formValidate() ? styles.saveButtonDisabled : styles.button} onPress={handleAddIncome}>
-            <Text style={formValidate() ? styles.saveButtonTextDisabled : styles.saveButtonText}>Salvar as Alterações</Text>
-        </TouchableOpacity>
     </View>;
 }
 
 export const styles = StyleSheet.create({
+
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginVertical: 20,
+        textAlign: 'center',
+        color: '#333',
+    },
     // Demais estilos permanecem inalterados
     recurrenceRow: {
         flexDirection: 'row',
@@ -201,6 +138,11 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
     },
+    datePickerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     form: {
         backgroundColor: '#FFFFFF',
         padding: 15,
@@ -226,27 +168,6 @@ export const styles = StyleSheet.create({
     picker: {
         marginBottom: 15,
     },
-    receivedButton: {
-        backgroundColor: '#2196F3',
-        padding: 10,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    saveButtonDisabled: {
-        backgroundColor: '#F5F5F5',
-        padding: 10,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    saveButtonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-    },
-    saveButtonTextDisabled: {
-        color: '#000000',
-        fontSize: 16,
-    },
 });
+
+

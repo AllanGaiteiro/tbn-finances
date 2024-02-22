@@ -33,12 +33,6 @@ export function IncomeItem({ income }) {
 
     return (
         <View key={income.id}>
-            {isFormVisible && <TouchableOpacity
-                style={isFormVisible? styles.buttonCancel: styles.button}
-                onPress={() => setIsFormVisible(!isFormVisible)}>
-                <Text style={styles.buttonText}>{'Cancelar Alterações'}</Text>
-
-            </TouchableOpacity>}
             {!isFormVisible && <TouchableOpacity key={income.id} style={[styles.incomeItem, dynamicBorderStyle]}
                 onPress={() => setIsFormVisible(!isFormVisible)}>
                 <Text style={styles.incomeAmount}>{income.amount}</Text>

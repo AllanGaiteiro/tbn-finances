@@ -2,11 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DashboardScreen from './screens/DashboardScreen';
-import ExpenseListScreen from './screens/Expense/ExpenseListScreen';
 import IncomeScreen from './screens/IncomeScreen/IncomeScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from 'react-native';
-import ExpenceScreen from './screens/ExpenseScreen/ExpenseScreen';
+import { ExpenseScreen } from './screens/ExpenseScreen/ExpenseScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -52,7 +51,7 @@ function App() {
         })}
       >
         <Tab.Screen name="Dashboard" component={DashboardScreen} />
-        <Tab.Screen name="Gastos" component={ExpenceScreen} />
+        <Tab.Screen name="Gastos" component={ExpenseScreen} />
         <Tab.Screen name="Rendas" component={IncomeScreen} />
       </Tab.Navigator>
     </NavigationContainer>

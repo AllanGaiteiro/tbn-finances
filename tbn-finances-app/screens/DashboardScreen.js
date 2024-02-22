@@ -1,6 +1,6 @@
 import { View, Text, Button } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import { styles } from './styles';
+import { styles } from '../styles/styles';
 
 const DashboardScreen = ({ navigation }) => {
     // Exemplo de dados para o gráfico de linha
