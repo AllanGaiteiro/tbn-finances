@@ -24,6 +24,25 @@ class IncomeRepository {
         return unsubscribe;
     }
 
+    observeIncomesForSelectedMonth(setIncome, month, year) {
+        const startDate = new Date(year, month, 1);
+        const endDate = new Date(year, month + 1, 0);
+
+        const q = query(this.collectionRef,
+            where("receivedDate", ">=", startDate),
+            where("receivedDate", "<=", endDate),
+            orderBy("receivedDate", "desc"));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const incomes = snapshot.docs.map(doc =>
+                Income.fromFirebase({ ...doc.data(), id: doc.id })
+            );
+            setIncome(incomes)
+        });
+
+        return unsubscribe;
+    }
+
     observeIncomeByMonth(setIncomeMonths, setLoading) {
         const q = query(this.collectionRef, orderBy("receivedDate", "desc"), where("status", "in", ["recebido", "em_progresso"]));
 
@@ -51,6 +70,44 @@ class IncomeRepository {
             setLoading(false);
         }, (error) => {
             console.error("Error observing incomes by month:", error);
+            setLoading(false);
+        });
+
+        return unsubscribe;
+    }
+
+    observeIncomeAmountByMonth(setIncomesMonths, setLoading) {
+        const q = query(this.collectionRef, orderBy("receivedDate", "desc"));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const newIncomeMonths = {};
+            const month = {}
+            const year = {}
+            snapshot.docs.forEach(doc => {
+                const data = Income.fromFirebase({ ...doc.data(), id: doc.id });
+                const receivedDate = data?.receivedDate;
+                if (receivedDate) {
+                    const monthYearKey = receivedDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+                    if (!newIncomeMonths[monthYearKey]) {
+                        newIncomeMonths[monthYearKey] = 0;
+                    }
+                    newIncomeMonths[monthYearKey] += data.amount;
+                    month[monthYearKey] = receivedDate.getMonth()
+                    year[monthYearKey] = receivedDate.getFullYear()
+                }
+            });
+
+            const sortedMonths = Object.keys(newIncomeMonths).sort((a, b) => new Date(b) - new Date(a)).map(key => ({
+                monthId: key,
+                month: month[key],
+                year: year[key],
+                total: newIncomeMonths[key],
+            }));
+
+            setIncomesMonths(sortedMonths);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error observing expense by month:", error);
             setLoading(false);
         });
 
