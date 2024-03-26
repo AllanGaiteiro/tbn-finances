@@ -1,8 +1,12 @@
 import React from 'react';
-import { TypesSlider } from '../TypeSlider';
+import { TypesSlider } from '../../../../components/TypeSlider';
 
 export function IncomeInputType({ income, setIncome }) {
-
+    const typesOptions = [
+        { label: 'Alçada', value: 'oferta_alcada', color: '#2196F3' },
+        { label: 'Voluntaria', value: 'oferta_voluntaria', color: '#2196F3' },
+        { label: 'Mensal', value: 'oferta_mensal', color: '#2196F3' },
+    ];
     const handleInputChange = (name, value) => {
         console.log(name, value)
 
@@ -27,6 +31,7 @@ export function IncomeInputType({ income, setIncome }) {
 
     };
     return <TypesSlider
+        options={typesOptions}
         currentType={income.type}
         onTypeChange={(value) => handleInputChange('type', value)} />;
 }

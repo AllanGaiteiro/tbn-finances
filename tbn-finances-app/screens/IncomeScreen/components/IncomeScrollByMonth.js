@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { incomeRepository } from '../../../repositories/IncomeRepository';
 
-export const IncomeScrollByMonth = () => {
+export const IncomeScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
     const [incomeMonths, setIncomeMonths] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = incomeRepository.observeIncomeByMonth(setIncomeMonths, setLoading);
-
+        const unsubscribe = incomeRepository.observeIncomeAmountByMonth(setIncomeMonths, setLoading);
         return () => unsubscribe();
     }, []);
 
@@ -16,14 +15,21 @@ export const IncomeScrollByMonth = () => {
         return <ActivityIndicator />;
     }
 
+    const handleMonthYear = (income) => {
+        setSelectedMonth(income.month);
+        setSelectedYear(income.year);
+    }
+
     return (
         <View style={styles.sliderContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {incomeMonths.map((income, index) => (
-                    <View key={index} style={styles.monthItem}>
-                        <Text style={styles.month}>{income.month}</Text>
+                    <TouchableOpacity key={index} style={styles.monthItem}
+                    onPress={() => handleMonthYear(income)}
+                    >
+                        <Text style={styles.month}>{income.monthId}</Text>
                         <Text style={styles.monthTotal}>R$ {income.total.toFixed(2)}</Text>
-                    </View>
+                    </TouchableOpacity>
                 ))}
             </ScrollView>
         </View>

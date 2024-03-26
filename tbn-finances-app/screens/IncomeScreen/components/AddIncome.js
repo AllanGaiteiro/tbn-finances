@@ -23,6 +23,7 @@ export function AddIncome() {
 
 export const styles = StyleSheet.create({
     container: {
+        marginTop:20,
         padding: 20,
     },
     button: {

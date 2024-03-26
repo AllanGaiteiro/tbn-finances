@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import RecurrenceSwitch from '../RecurrenceSwitch';
-import { styles } from '../FormIncome';
 
 export function IncomeInputIsRecurrence({ income, setIncome }) {
     const handleInputChange = (name, value) => {
@@ -29,3 +28,9 @@ export function IncomeInputIsRecurrence({ income, setIncome }) {
             onToggle={(value) => handleInputChange('isRecurrence', value)} />
     </View>;
 }
+export const styles = StyleSheet.create({
+    recurrenceRow: {
+        flexDirection: 'row',
+        marginBottom: 15
+    },
+});

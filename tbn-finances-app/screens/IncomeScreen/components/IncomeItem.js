@@ -31,11 +31,15 @@ export function IncomeItem({ income }) {
         borderLeftColor: getBorderColorByStatus(income.status),
     };
 
+    const dynamicAmountColorStyle = {
+        color: getBorderColorByStatus(income.status),
+    };
+
     return (
         <View key={income.id}>
             {!isFormVisible && <TouchableOpacity key={income.id} style={[styles.incomeItem, dynamicBorderStyle]}
                 onPress={() => setIsFormVisible(!isFormVisible)}>
-                <Text style={styles.incomeAmount}>{income.amount}</Text>
+                <Text style={[styles.incomeAmount, dynamicAmountColorStyle]}>{income.amount}</Text>
                 <Text style={styles.incomeType}>{income.donorName}</Text>
                 <Text style={styles.incomeDate}>{formatDate(income.receivedDate)}</Text>
             </TouchableOpacity>}
@@ -102,5 +106,5 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
     },
-    
+
 });

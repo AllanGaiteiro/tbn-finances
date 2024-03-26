@@ -1,21 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const typesOptions = [
-  { label: 'Alçada', value: 'oferta_alcada', color: '#2196F3' },
-  { label: 'Voluntaria', value: 'oferta_voluntaria', color: '#2196F3' },
-  { label: 'Mensal', value: 'oferta_mensal', color: '#2196F3' },
-];
-export const TypesSlider = ({ currentType, onTypeChange }) => {
+export const TypesSlider = ({options, currentType, onTypeChange }) => {
   // Função para determinar a cor de fundo com base no status atual
   const getBackgroundColor = (value) => {
-    const typesOption = typesOptions.find(option => option.value === value);
-    return typesOption ? typesOption.color : '#ccc'; // cor padrão se não encontrado
+    const option = options.find(option => option.value === value);
+    return option ? option.color : '#ccc'; // cor padrão se não encontrado
   };
 
   return (
     <View style={styles.sliderContainer}>
-      {typesOptions.map((option) => (
+      {options.map((option) => (
         <TouchableOpacity
           key={option.value}
           style={[

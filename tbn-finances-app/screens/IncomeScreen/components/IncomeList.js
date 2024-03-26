@@ -4,14 +4,14 @@ import { Income } from '../../../entity/Income';
 import { IncomeItem } from './IncomeItem';
 import { incomeRepository } from '../../../repositories/IncomeRepository';
 
-export function IncomeList() {
+export function IncomeList({ selectedMonth, selectedYear }) {
     const [incomes, setIncomes] = useState([new Income()]);
     const screenHeight = Dimensions.get('window').height; // Obter a altura da tela
 
     useEffect(() => {
-        const unsubscribe = incomeRepository.observeIncomes(setIncomes);
+        const unsubscribe = incomeRepository.observeIncomesForSelectedMonth(setIncomes, selectedMonth, selectedYear);
         return () => unsubscribe();
-    }, []);
+    }, [selectedMonth,selectedYear]);
 
     return <View style={{ height: screenHeight / 1.5 }}>
         <ScrollView nestedScrollEnabled={true}>

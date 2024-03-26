@@ -37,18 +37,20 @@ export const IncomeSummaryCard = () => {
     }
     return (
         <View style={styles.card}>
-            <Text style={styles.cardTitle}>Resumo de Entradas Do mes</Text>
+            <Text style={styles.cardTitle}>Resumo do Mes</Text>
+            
             <View style={styles.row}>
-                <Text style={styles.label}>Total Recebido:</Text>
+                <Text style={styles.label}>Valor a Receber: </Text>
+                <Text style={styles.value}>R$ {allIncomes.toFixed(2)}</Text>
+            </View>
+
+            <View style={styles.row}>
+                <Text style={styles.label}>Valor Recebido: </Text>
                 <Text style={styles.totalValue}>R$ {allReceived.toFixed(2)}</Text>
             </View>
             <View style={styles.row}>
-                <Text style={styles.label}>Total a Receber:</Text>
+                <Text style={styles.label}>Falta Receber: </Text>
                 <Text style={styles.pendingValue}>R$ {allToReceive.toFixed(2)}</Text>
-            </View>
-            <View style={styles.row}>
-                <Text style={styles.label}>Total neste Mes:</Text>
-                <Text style={styles.value}>R$ {allIncomes.toFixed(2)}</Text>
             </View>
 
         </View>
@@ -91,7 +93,7 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     value: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#4CAF50',
     },
@@ -101,7 +103,7 @@ const styles = StyleSheet.create({
         color: '#4CAF50',
     },
     pendingValue: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#2196F3',
     },

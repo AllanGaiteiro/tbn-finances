@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Platform, StyleSheet, Text } from 'react-native';
 
 
-export function IncomeInputLastRecurrenceDateWeb(isVisible, income, setIsFormVisible) {
+export function IncomeInputLastRecurrenceDateWeb({isVisible, income, setIsFormVisible}) {
     const handleInputChange = (name, value) => {
         setIncome(prevIncome => ({
             ...prevIncome,
@@ -15,7 +15,7 @@ export function IncomeInputLastRecurrenceDateWeb(isVisible, income, setIsFormVis
         <Text>Ultimo recebimento em: </Text>
             <input
                 type="date"
-                value={newIncome?.lastRecurrenceDate ? newIncome.lastRecurrenceDate.toISOString().substring(0, 10) : ''}
+                value={income?.lastRecurrenceDate ? income.lastRecurrenceDate.toISOString().substring(0, 10) : ''}
                 onChange={(event) => handleInputChange('lastRecurrenceDate', new Date(event.target.value))}
                 style={{ ...styles.input, cursor: 'pointer' }} // Estilo adicional para web
             />

@@ -46,20 +46,6 @@ export class Income {
         };
     }
 
-    static fronFirebase(data) {
-        const returnDate = data;
-
-        if (data.receivedDate) {
-            returnDate.receivedDate = data.receivedDate?.toDate();
-        }
-        if (data.creationDate) {
-            returnDate.creationDate = data.creationDate?.toDate();
-        }
-        if (data.lastRecurrenceDate) {
-            returnDate.lastRecurrenceDate = data.lastRecurrenceDate?.toDate();
-        }
-        return returnDate;
-    }
     // Métodos adicionais conforme necessário, como validação ou ajustes específicos
     validate() {
         // Método para validar o objeto Income antes de salvá-lo, por exemplo
