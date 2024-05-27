@@ -7,7 +7,7 @@ import { ExpenseInputAmount } from './input/ExpenseInputAmount';
 import { ExpenseInputTotalInstallments } from './input/ExpenseInputTotalInstallments';
 import { ExpenseInputDescription } from './input/ExpenseInputDescription';
 import { expenseRepository } from '../../../repositories/ExpenseRepository';
-import { ExpenseInputImage } from './input/ExpenseInputImage';
+// import { ExpenseInputImage } from './input/ExpenseInputImage';
 import { Expense } from '../../../entity/Expense';
 import { ExpenseInputDueDateWeb } from './input/ExpenseInputDueDateWeb';
 import { ExpenseInputDueDateMobile } from './input/ExpenseInputDueDateMobile';
@@ -81,8 +81,9 @@ export function FormExpense({ expense: expenseItem, isFormVisible, setIsFormVisi
         <ExpenseInputPaymentDateWeb isVisible={expense.id}
             expense={expense} setExpense={setExpense} />
         <ExpenseInputPaymentDateMobile isVisible={expense.id} setExpense={setExpense} />
-        
+        {/*
         <ExpenseInputImage expense={expense} />
+        */}
         <View style={styles.datePickerContainer}>
             <ButtonSave formValidate={formValidate} save={handleSetExpense} />
             <ButtonBack setIsFormVisible={setIsFormVisible} />
