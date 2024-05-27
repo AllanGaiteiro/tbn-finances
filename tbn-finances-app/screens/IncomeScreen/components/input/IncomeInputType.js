@@ -13,12 +13,12 @@ export function IncomeInputType({ income, setIncome }) {
         if (name === 'type' && value === 'oferta_mensal') {
             handleInputChange('isRecurrence', true)
             handleInputChange('status', 'em_progresso');
-            handleInputChange('receivedDate', null);
+            handleInputChange('transactionDate', null);
             handleInputChange('lastRecurrenceDate', new Date());
         }
         if (name === 'type' && value !== 'oferta_mensal' && income.type === 'oferta_mensal') {
             handleInputChange('isRecurrence', false)
-            handleInputChange('receivedDate', new Date());
+            handleInputChange('transactionDate', new Date());
             handleInputChange('status', 'recebido');
             handleInputChange('lastRecurrenceDate', null);
 

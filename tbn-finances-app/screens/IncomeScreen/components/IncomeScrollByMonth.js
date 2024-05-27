@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { incomeRepository } from '../../../repositories/IncomeRepository';
+import { transactionRepository } from '../../../repositories/TransactionRepository';
 
 export const IncomeScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
     const [incomeMonths, setIncomeMonths] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = incomeRepository.observeIncomeAmountByMonth(setIncomeMonths, setLoading);
+        const unsubscribe = transactionRepository.observeIncomeAmountByMonth(setIncomeMonths, setLoading);
         return () => unsubscribe();
     }, []);
 

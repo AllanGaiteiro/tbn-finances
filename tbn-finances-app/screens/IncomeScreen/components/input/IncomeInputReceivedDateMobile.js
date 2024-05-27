@@ -16,7 +16,7 @@ export function IncomeInputReceivedDateMobile({isVisible, setIncome }) {
 
     return isVisible && <View>
         <IncomeButtonReceivedMobile setShowDatePicker={setShowDatePicker} />
-        <DatePikerMobile name='receivedDate' setShowDatePicker={setShowDatePicker} handleInputChange={handleInputChange} showDatePicker={showDatePicker} />
+        <DatePikerMobile name='transactionDate' setShowDatePicker={setShowDatePicker} handleInputChange={handleInputChange} showDatePicker={showDatePicker} />
     </View>;
 }
 

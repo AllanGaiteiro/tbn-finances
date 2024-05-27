@@ -41,7 +41,7 @@ export function IncomeItem({ income }) {
                 onPress={() => setIsFormVisible(!isFormVisible)}>
                 <Text style={[styles.incomeAmount, dynamicAmountColorStyle]}>{income.amount}</Text>
                 <Text style={styles.incomeType}>{income.donorName}</Text>
-                <Text style={styles.incomeDate}>{formatDate(income.receivedDate)}</Text>
+                <Text style={styles.incomeDate}>{formatDate(income.transactionDate)}</Text>
             </TouchableOpacity>}
             {isFormVisible && <FormIncome income={income} setIsFormVisible={setIsFormVisible} />}
         </View>

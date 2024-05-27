@@ -6,12 +6,12 @@ export function IncomeInputIsRecurrence({ income, setIncome }) {
     const handleInputChange = (name, value) => {
         if (name === 'isRecurrence' && value === true) {
             handleInputChange('status', 'em_progresso');
-            handleInputChange('receivedDate', null);
+            handleInputChange('transactionDate', null);
             // handleInputChange('recurrenceDay', 28);
         }
 
         if (name === 'isRecurrence' && value === false) {
-            handleInputChange('receivedDate', new Date());
+            handleInputChange('transactionDate', new Date());
             // handleInputChange('recurrenceDay', null);
         }
 

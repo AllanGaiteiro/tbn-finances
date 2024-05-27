@@ -6,7 +6,7 @@ export function ExpenseItem({ expense }) {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const now = new Date().toISOString();
     const dueDate = expense.dueDate.toISOString();
-    if (!expense?.paymentDate && dueDate < now) {
+    if (!expense?.transactionDate && dueDate < now) {
         expense.status = 'atrasada';
     }
 

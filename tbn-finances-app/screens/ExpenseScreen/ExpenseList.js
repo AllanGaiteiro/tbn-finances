@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
-import { expenseRepository } from '../../repositories/ExpenseRepository';
 import { ExpenseItem } from './ExpenseItem';
 import { Expense } from '../../entity/Expense';
+import { transactionRepository } from '../../repositories/TransactionRepository';
 
 
 export function ExpenseList({selectedMonth,selectedYear}) {
@@ -10,7 +10,7 @@ export function ExpenseList({selectedMonth,selectedYear}) {
     const screenHeight = Dimensions.get('window').height; // Obter a altura da tela
 
     useEffect(() => {
-        const unsubscribe = expenseRepository.observeExpensesForSelectedMonth(setExpense,selectedMonth,selectedYear);
+        const unsubscribe = transactionRepository.observeTransactionForSelectedMonth(setExpense,selectedMonth,selectedYear);
         return () => unsubscribe();
     }, [selectedMonth,selectedYear]);
 

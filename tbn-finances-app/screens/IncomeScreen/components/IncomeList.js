@@ -3,13 +3,14 @@ import { View, Text, ScrollView, Dimensions, StyleSheet } from 'react-native';
 import { Income } from '../../../entity/Income';
 import { IncomeItem } from './IncomeItem';
 import { incomeRepository } from '../../../repositories/IncomeRepository';
+import { transactionRepository } from '../../../repositories/TransactionRepository';
 
 export function IncomeList({ selectedMonth, selectedYear }) {
     const [incomes, setIncomes] = useState([new Income()]);
     const screenHeight = Dimensions.get('window').height; // Obter a altura da tela
 
     useEffect(() => {
-        const unsubscribe = incomeRepository.observeIncomesForSelectedMonth(setIncomes, selectedMonth, selectedYear);
+        const unsubscribe = transactionRepository.observeTransactionForSelectedMonth(setIncomes, selectedMonth, selectedYear);
         return () => unsubscribe();
     }, [selectedMonth,selectedYear]);
 

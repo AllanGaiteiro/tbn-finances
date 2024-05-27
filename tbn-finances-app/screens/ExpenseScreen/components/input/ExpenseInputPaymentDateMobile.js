@@ -8,7 +8,7 @@ export function ExpenseInputPaymentDateMobile({ isVisible, setExpense }) {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const textButton = 'Pagamento efetuado em';
     const handleInputChange = (name, value) => {
-        if (name === 'paymentDate' && value) {
+        if (name === 'transactionDate' && value) {
             handleInputChange('status', 'pago');
         }
         setExpense(prevIncome => ({
@@ -20,6 +20,6 @@ export function ExpenseInputPaymentDateMobile({ isVisible, setExpense }) {
 
     return isVisible && <View>
         <ExpenseButtonDateMobile textButton={textButton} setShowDatePicker={setShowDatePicker} />
-        <DatePikerMobile name='paymentDate' setShowDatePicker={setShowDatePicker} handleInputChange={handleInputChange} showDatePicker={showDatePicker} />
+        <DatePikerMobile name='transactionDate' setShowDatePicker={setShowDatePicker} handleInputChange={handleInputChange} showDatePicker={showDatePicker} />
     </View>;
 }

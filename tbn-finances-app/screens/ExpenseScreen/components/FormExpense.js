@@ -6,13 +6,13 @@ import { ExpenseInputType } from './input/ExpenseInputType';
 import { ExpenseInputAmount } from './input/ExpenseInputAmount';
 import { ExpenseInputTotalInstallments } from './input/ExpenseInputTotalInstallments';
 import { ExpenseInputDescription } from './input/ExpenseInputDescription';
-import { expenseRepository } from '../../../repositories/ExpenseRepository';
 // import { ExpenseInputImage } from './input/ExpenseInputImage';
 import { Expense } from '../../../entity/Expense';
 import { ExpenseInputDueDateWeb } from './input/ExpenseInputDueDateWeb';
 import { ExpenseInputDueDateMobile } from './input/ExpenseInputDueDateMobile';
 import { ExpenseInputPaymentDateMobile } from './input/ExpenseInputPaymentDateMobile';
 import { ExpenseInputPaymentDateWeb } from './input/ExpenseInputPaymentDateWeb';
+import { transactionRepository } from '../../../repositories/TransactionRepository';
 
 export function FormExpense({ expense: expenseItem, isFormVisible, setIsFormVisible }) {
     const [expense, setExpense] = useState(expenseItem || new Expense());
@@ -46,12 +46,12 @@ export function FormExpense({ expense: expenseItem, isFormVisible, setIsFormVisi
 
             try {
                 if (expense.id && expense.type === 'mensal') {
-                    await expenseRepository.updateExpense(expense);
+                    await transactionRepository.expense.updateExpense(expense);
                 } else if (expense.id) {
-                    await expenseRepository.updateExpense(expense);
+                    await transactionRepository.expense.updateExpense(expense);
                 } else {
                     expense.creationDate = new Date();
-                    await expenseRepository.addExpense(expense);
+                    await transactionRepository.expense.addExpense(expense);
                 }
 
                 Alert.alert("Sucesso", "Despesa adicionada com sucesso!");

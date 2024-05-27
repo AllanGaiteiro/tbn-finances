@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert, StyleSheet, Text } from 'react-native';
 import { Income } from '../../../entity/Income';
-import { incomeRepository } from '../../../repositories/IncomeRepository';
 import { IncomeInputType } from './input/IncomeInputType';
 import { IncomeInputDonnorName } from './input/IncomeInputDonnorName';
 import { IncomeInputAmount } from './input/IncomeInputAmount';
@@ -12,13 +11,14 @@ import { IncomeInputLastRecurrenceDateMobile } from './input/IncomeInputLastRecu
 import { IncomeInputLastRecurrenceDateWeb } from './input/IncomeInputLastRecurrenceDateWeb';
 import { ButtonBack } from '../../../components/ButtonBack';
 import { ButtonSave } from '../../../components/ButtonSave';
+import { transactionRepository } from '../../../repositories/TransactionRepository';
 
 
 export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible }) {
     const [income, setIncome] = useState(incomeItem || new Income());
     const formValidateAmount = (income) => !income.amount || isNaN(income.amount) || income.amount <= 0;
     const formValidateType = (income) => !income.type;
-    const formValidateIsRecurrence = (income) => !income.isRecurrence && !income.receivedDate;
+    const formValidateIsRecurrence = (income) => !income.isRecurrence && !income.transactionDate;
     const formValidate = () => formValidateAmount(income) || formValidateType(income) || formValidateIsRecurrence(income)
 
     const validateForm = () => {
@@ -44,12 +44,12 @@ export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible
 
             try {
                 if (income.id && income.type === 'oferta_mensal') {
-                    await incomeRepository.handleRecurrenceUpdate(income)
+                    await transactionRepository.income.handleRecurrenceUpdate(income)
                 } else if (income.id) {
-                    await incomeRepository.updateIncome(income)
+                    await transactionRepository.income.updateIncome(income)
                 } else {
                     income.creationDate = new Date()
-                    await incomeRepository.addIncome(income);
+                    await transactionRepository.income.addIncome(income);
                 }
 
                 Alert.alert("Sucesso", "Renda adicionada com sucesso!");

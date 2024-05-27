@@ -4,7 +4,7 @@ import { View, Platform, Text, StyleSheet } from 'react-native';
 
 export function ExpenseInputPaymentDateWeb({ expense, setExpense, isVisible }) {
     const handleInputChange = (name, value) => {
-        if (name === 'paymentDate' && value) {
+        if (name === 'transactionDate' && value) {
             handleInputChange('status', 'pago');
         }
 
@@ -19,8 +19,8 @@ export function ExpenseInputPaymentDateWeb({ expense, setExpense, isVisible }) {
         <Text>Pago em: </Text>
         <input
             type="date"
-            value={expense?.paymentDate ? expense.paymentDate.toISOString().substring(0, 10) : ''}
-            onChange={(event) => handleInputChange('paymentDate', new Date(event.target.value))}
+            value={expense?.transactionDate ? expense.transactionDate.toISOString().substring(0, 10) : ''}
+            onChange={(event) => handleInputChange('transactionDate', new Date(event.target.value))}
             style={{ ...styles.input, cursor: 'pointer' }} // Estilo adicional para web
         />
 

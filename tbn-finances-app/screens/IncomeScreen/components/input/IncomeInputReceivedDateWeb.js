@@ -14,8 +14,8 @@ export function IncomeInputReceivedDateWeb({ income, setIncome, isVisible }) {
         <Text>Recebido em: </Text>
         <input
             type="date"
-            value={income?.receivedDate ? income.receivedDate.toISOString().substring(0, 10) : ''}
-            onChange={(event) => handleInputChange('receivedDate', new Date(event.target.value))}
+            value={income?.transactionDate ? income.transactionDate.toISOString().substring(0, 10) : ''}
+            onChange={(event) => handleInputChange('transactionDate', new Date(event.target.value))}
             style={{ ...styles.input, cursor: 'pointer' }} // Estilo adicional para web
         />
 

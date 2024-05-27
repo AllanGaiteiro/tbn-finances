@@ -2,12 +2,11 @@ export class TransactionEntity {
     constructor(typeTransaction = null) {
         this.id = null;
         this.typeTransaction = typeTransaction;
-        this.categoryExpense = null; // "Mensal", "Parcela", "Única"
-        this.categoryIncome = null;// Tipo de renda: oferta_alcada e oferta_voluntaria
+        this.type = null;
         this.status = 'pendente';
-        this.amount = 0; // Quantia da despesa
-        this.transactionDate = null; // Data que a despesa foi paga (null se não foi paga)
-        this.dueDate = new Date(); // Data de vencimento da despesa
+        this.amount = 0; // Quantia
+        this.transactionDate = null; // Data de transação (null se não foi paga)
+        this.dueDate = new Date(); // Data esperada de recebimento ou pagamento
         this.description = ''; // Descrição ou nome do destinatário (pessoa ou empresa)
         this.totalInstallments = 1; // Total de parcelas (para "Parcela")
         this.currentInstallment = 0; // Número da parcela atual (para "Parcela")
@@ -22,8 +21,7 @@ export class TransactionEntity {
         // Atribuir valores a partir de `data`, incluindo a conversão de datas
         expense.id = data.id;
         expense.typeTransaction = data.typeTransaction;
-        expense.categoryExpense = data.typeTransaction === 'expense' ? data.categoryExpense : null;
-        expense.categoryIncome = data.typeTransaction === 'income' ? data.categoryIncome : null;
+        expense.type = data.type || null;
         expense.status = data.status;
         expense.amount = data.amount;
         expense.transactionDate = data.transactionDate?.toDate() || null;
@@ -40,8 +38,7 @@ export class TransactionEntity {
     toFirestore() {
         return {
             typeTransaction: this.typeTransaction,
-            categoryExpense: this.typeTransaction === 'expense' ? this.categoryExpense : null,
-            categoryIncome: this.typeTransaction === 'income' ? this.categoryIncome : null,
+            type: this.type || null,
             status: this.status,
             amount: this.amount,
             transactionDate: this.transactionDate,

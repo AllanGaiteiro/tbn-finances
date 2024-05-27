@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { incomeRepository } from '../../../repositories/IncomeRepository';
+import { transactionRepository } from '../../../repositories/TransactionRepository';
 
 export const IncomeSummaryCard = () => {
     const [loading, setLoading] = useState(true);
@@ -10,9 +10,9 @@ export const IncomeSummaryCard = () => {
 
     useEffect(() => {
         // Assinaturas retornarão funções para desinscrever
-        const unsubAllReceived = incomeRepository.observeReceivedThisMonth(setAllReceived);
-        const unsubAllToReceive = incomeRepository.observeToReceiveThisMonth(setAllToReceive);
-        const unsubAllIncomes = incomeRepository.observeToReceivedAllThisMonth(setAllIncomes);
+        const unsubAllReceived = transactionRepository.observeReceivedThisMonth(setAllReceived);
+        const unsubAllToReceive = transactionRepository.observeToReceiveThisMonth(setAllToReceive);
+        const unsubAllIncomes = transactionRepository.observeToReceivedAllThisMonth(setAllIncomes);
 
         // Quando qualquer dado é atualizado, removemos o indicador de carregamento
         const unsubscribes = [unsubAllReceived, unsubAllIncomes, unsubAllToReceive];
