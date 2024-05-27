@@ -1,30 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { expenseRepository } from '../../repositories/ExpenseRepository';
-import { transactionRepository } from '../../repositories/TransactionRepository';
+import { transactionRepository } from '../../../repositories/TransactionRepository';
 
-export const ExpenseScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
-    const [expenseMonths, setExpenseMonths] = useState([]);
+export const ScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
+    const [transactionMonths, setTransactionMonths] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = transactionRepository.observeExpenseAmountByMonth(setExpenseMonths, setLoading);
+        const unsubscribe = transactionRepository.observeTransactionAmountByMonth(setTransactionMonths, setLoading);
 
         return () => unsubscribe();
     }, []);
 
     const getBorderColorByStatus = (status) => {
         switch (status) {
-            case 'pendente': return '#FF9800'; // Laranja para indicar pendência
-            case 'paga': return '#4CAF50'; // Verde para indicar que a despesa foi paga
-            case 'atrasada': return '#F44336'; // Vermelho para indicar atraso no pagamento
+            case 'recebido': return '#4CAF50'; // Verde para indicar que a despesa foi paga
+            case 'gasto': return '#F44336'; // Vermelho para indicar atraso no pagamento
             default: return '#757575'; // Cinza para estados não especificados
         }
     };
 
-    const handleMonthYear = (expense) => {
-        setSelectedMonth(expense.month);
-        setSelectedYear(expense.year);
+    const handleMonthYear = (transactionMonth) => {
+        setSelectedMonth(transactionMonth.month);
+        setSelectedYear(transactionMonth.year);
     }
 
     if (loading) {
@@ -34,20 +32,20 @@ export const ExpenseScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
     return (
         <View style={styles.sliderContainer} >
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {expenseMonths.map((expense, index) => (
+                {transactionMonths.map((transactionMonth, index) => (
                     <TouchableOpacity key={index}
-                        onPress={() => handleMonthYear(expense)}
+                        onPress={() => handleMonthYear(transactionMonth)}
                         style={styles.monthItem}>
-                        <Text style={styles.month}>{expense.monthId}</Text>
+                        <Text style={styles.month}>{transactionMonth.monthId}</Text>
 
                         <View style={styles.row}>
-                            <Text style={styles.label}>Pago: </Text>
-                            <Text style={[styles.monthTotal, { color: getBorderColorByStatus('paga') }]}>R$ {expense.total.toFixed(2)}</Text>
+                            <Text style={styles.label}>Recebido: </Text>
+                            <Text style={[styles.monthTotal, { color: getBorderColorByStatus('recebido') }]}>R$ {transactionMonth.incomeMonth.toFixed(2)}</Text>
                         </View>
 
                         <View style={styles.row}>
-                            <Text style={styles.label}>Não Pago:</Text>
-                            <Text style={[styles.monthTotal, { color: getBorderColorByStatus('pendente') }]}>R$ {expense.totalNotPay.toFixed(2)}</Text>
+                            <Text style={styles.label}>Pago: </Text>
+                            <Text style={[styles.monthTotal, { color: getBorderColorByStatus('gasto') }]}>R$ {transactionMonth.expenseMonth.toFixed(2)}</Text>
                         </View>
 
                     </TouchableOpacity>

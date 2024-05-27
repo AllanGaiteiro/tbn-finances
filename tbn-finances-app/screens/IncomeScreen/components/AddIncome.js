@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Income } from '../../../entity/Income';
-import { FormIncome } from './FormIncome';
+import { FormIncome } from '../../TransactionScreen/components/FormIncome';
 
 export function AddIncome() {
     const [isFormVisible, setIsFormVisible] = useState(false);
@@ -23,7 +23,6 @@ export function AddIncome() {
 
 export const styles = StyleSheet.create({
     container: {
-        marginTop:20,
         padding: 20,
     },
     button: {

@@ -5,7 +5,7 @@ import DashboardScreen from './screens/DashboardScreen';
 import IncomeScreen from './screens/IncomeScreen/IncomeScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from 'react-native';
-import { ExpenseScreen } from './screens/ExpenseScreen/ExpenseScreen';
+import { TransactionScreen } from './screens/TransactionScreen/TransactionScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,7 +21,7 @@ function App() {
             if (route.name === 'Dashboard') {
               iconName = focused ? 'ios-stats-chart' : 'ios-stats-chart-outline';
               routeColor = '#2196F3'; // Azul
-            } else if (route.name === 'Gastos') {
+            } else if (route.name === 'Balanço') {
               iconName = 'ios-wallet';
               routeColor = '#F44336'; // Vermelho
             } else if (route.name === 'Rendas') {
@@ -37,8 +37,8 @@ function App() {
 
             if (route.name === 'Dashboard') {
               label = 'Dashboard';
-            } else if (route.name === 'Gastos') {
-              label = 'Gastos';
+            } else if (route.name === 'Balanço') {
+              label = 'Balanço';
             } else if (route.name === 'Rendas') {
               label = 'Rendas';
             }
@@ -51,8 +51,7 @@ function App() {
         })}
       >
         <Tab.Screen name="Dashboard" component={DashboardScreen} />
-        <Tab.Screen name="Gastos" component={ExpenseScreen} />
-        <Tab.Screen name="Rendas" component={IncomeScreen} />
+        <Tab.Screen name="Balanço" component={TransactionScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

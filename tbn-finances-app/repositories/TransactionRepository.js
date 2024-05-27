@@ -3,6 +3,7 @@ import { firestore } from '../settings/firebaseConfig';
 import { expenseRepository } from './ExpenseRepository';
 import { incomeRepository } from './IncomeRepository';
 import { TransactionEntity } from '../entity/TransactionEntity';
+import { AmountByMonth } from '../entity/AmountByMonth';
 
 class TransactionRepository {
     expense = expenseRepository;
@@ -14,17 +15,17 @@ class TransactionRepository {
 
 
 
-    observeTransactionForSelectedMonth(setTransaction, month, year) {
-        const startDate = new Date(year, month, 1);
-        const endDate = new Date(year, month + 1, 0);
+    observeTransactionForSelectedMonth(setTransaction, {selectedMonth, selectedYear,sortOrder,sortBy}) {
+        const startDate = new Date(selectedYear, selectedMonth, 1);
+        const endDate = new Date(selectedYear, selectedMonth + 1, 0);
 
         const q = query(this.collectionRef,
             where("dueDate", ">=", startDate),
             where("dueDate", "<=", endDate),
-            orderBy("dueDate", "asc"));
+            orderBy(sortBy || "dueDate", sortOrder || "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const expenses = snapshot.docs.map(doc => TransactionEntity.fromFirebase({ id: doc.id, ...doc.data() }));
+            const expenses = snapshot.docs.map(doc => TransactionEntity.fromFirebase({  ...doc.data(),id: doc.id }));
             setTransaction(expenses);
         });
 
@@ -32,12 +33,12 @@ class TransactionRepository {
     }
 
 
-    observeExpenseAmountByMonth(seExpenseMonths, setLoading) {
+    observeTransactionAmountByMonth(seExpenseMonths, setLoading) {
         const q = query(this.collectionRef, orderBy("dueDate", "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const newExpenseMonths = {};
-            const newExpenseMonthsNotPay = {};
+            const expenseMonths = {};
+            const incomeMonths = {};
             const month = {};
             const year = {};
             snapshot.docs.forEach(doc => {
@@ -45,29 +46,30 @@ class TransactionRepository {
                 const dueDate = data?.dueDate;
                 if (dueDate) {
                     const monthYearKey = dueDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-                    if (!newExpenseMonths[monthYearKey]) {
-                        newExpenseMonths[monthYearKey] = 0;
+                    if (!expenseMonths[monthYearKey]) {
+                        expenseMonths[monthYearKey] = 0;
                     }
-                    if (!newExpenseMonthsNotPay[monthYearKey]) {
-                        newExpenseMonthsNotPay[monthYearKey] = 0;
+                    if (!incomeMonths[monthYearKey]) {
+                        incomeMonths[monthYearKey] = 0;
                     }
 
-                    if (data.status === 'paga') {
-                        newExpenseMonths[monthYearKey] += data.amount;
+                    if (data.typeTransaction === 'income') {
+                        incomeMonths[monthYearKey] += data.amount;
                     } else {
-                        newExpenseMonthsNotPay[monthYearKey] += data.amount;
+                        expenseMonths[monthYearKey] += data.amount;
                     }
                     month[monthYearKey] = dueDate.getMonth();
                     year[monthYearKey] = dueDate.getFullYear();
                 }
             });
 
-            const sortedMonths = Object.keys(newExpenseMonths).sort((a, b) => new Date(b) - new Date(a)).map(key => ({
+            const sortedMonths = Object.keys(expenseMonths).sort((a, b) => new Date(b) - new Date(a)).map(key => ({
                 monthId: key,
                 month: month[key],
                 year: year[key],
-                total: newExpenseMonths[key],
-                totalNotPay: newExpenseMonthsNotPay[key],
+                expenseMonth: expenseMonths[key],
+                incomeMonth: incomeMonths[key],
+                totalMonth: incomeMonths[key] - expenseMonths[key],
             }));
 
             seExpenseMonths(sortedMonths);
@@ -90,8 +92,13 @@ class TransactionRepository {
             orderBy("dueDate", "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const totalAmount = snapshot.docs.reduce((acc, doc) => acc + doc.data().amount, 0);
-            setTransaction(totalAmount);
+            const amountByMonth = new AmountByMonth();
+            const transactionList = snapshot.docs.map(d => TransactionEntity.fromFirebase(d.data()));
+            const filterTransactionList = (typeTransaction) => transactionList?.filter(t => t.typeTransaction === typeTransaction) ?? [];
+            amountByMonth.income = filterTransactionList('income')?.reduce((acc, d) => acc + d.amount || 0, 0)
+            amountByMonth.expense = filterTransactionList('expense')?.reduce((acc, d) => acc + d.amount || 0, 0)
+            amountByMonth.total = amountByMonth.income - amountByMonth.expense
+            setTransaction(amountByMonth);
         });
         return unsubscribe;
     }

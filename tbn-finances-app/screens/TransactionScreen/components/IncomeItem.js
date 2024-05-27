@@ -1,61 +1,56 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { FormExpense } from './components/FormExpense';
+import { FormIncome } from './FormIncome';
 
-export function ExpenseItem({ expense }) {
+export function IncomeItem({ income }) {
     const [isFormVisible, setIsFormVisible] = useState(false);
-    const now = new Date().toISOString();
-    const dueDate = expense.dueDate.toISOString();
-    if (!expense?.transactionDate && dueDate < now) {
-        expense.status = 'atrasada';
-    }
 
     const formatDate = (date) => {
         if (!date) return ' - '; // Retorna um placeholder se a data não existir
 
-
         // Formata a data como dia/mês/ano
         const day = date.getDate().toString().padStart(2, '0'); // Adiciona um zero à esquerda se necessário
         const month = (date.getMonth() + 1).toString().padStart(2, '0'); // getMonth() retorna o mês de 0-11
-        const year = date.getFullYear();
 
-        return `${day}/${month}/${year}`;
+        return `${day}/${month}`;
     };
 
     // Define a função para determinar a cor da borda com base no status
     const getBorderColorByStatus = (status) => {
         switch (status) {
-            case 'pendente': return '#FF9800'; // Laranja para indicar pendência
-            case 'paga': return '#4CAF50'; // Verde para indicar que a despesa foi paga
-            case 'atrasada': return '#F44336'; // Vermelho para indicar atraso no pagamento
-            default: return '#757575'; // Cinza para estados não especificados
+            case 'recebido': return '#4CAF50'; // Verde
+            case 'em_progresso': return '#2196F3'; // Azul
+            case 'cancelado': return '#F44336'; // Vermelho
+            default: return '#000000'; // Preto para 'retornado' e outros estados não especificados
         }
     };
 
     // Aplica a cor da borda dinamicamente com base no status
     const dynamicBorderStyle = {
-        borderLeftColor: getBorderColorByStatus(expense.status),
+        borderLeftColor: getBorderColorByStatus(income?.status),
     };
+
     const dynamicAmountColorStyle = {
-        color: getBorderColorByStatus(expense.status),
+        color: getBorderColorByStatus(income?.status),
     };
 
     return (
-        <View key={expense.id}>
-            {!isFormVisible && <TouchableOpacity key={expense.id} style={[styles.expenseItem, dynamicBorderStyle]}
+        <View key={income.id}>
+            {!isFormVisible && <TouchableOpacity key={income.id} style={[styles.incomeItem, dynamicBorderStyle]}
                 onPress={() => setIsFormVisible(!isFormVisible)}>
-                <Text style={[styles.expenseAmount, dynamicAmountColorStyle]}>{expense.amount}</Text>
-                <Text style={styles.expenseType}>{expense.description}</Text>
-                <Text style={styles.expenseDate}>{formatDate(expense.dueDate)}</Text>
+                <Text style={[styles.incomeAmount, dynamicAmountColorStyle]}>{income.amount}</Text>
+                <Text style={styles.incomeType}>{income.description}</Text>
+                <Text style={styles.incomeDate}>{formatDate(income.transactionDate)}</Text>
+                <Text style={[styles.incomeType,dynamicAmountColorStyle]}>{income.status}</Text>
             </TouchableOpacity>}
-            {isFormVisible && <FormExpense expense={expense} setIsFormVisible={setIsFormVisible} />}
+            {isFormVisible && <FormIncome income={income} setIsFormVisible={setIsFormVisible} />}
         </View>
 
     );
 }
 
-export const styles = StyleSheet.create({
-    expenseItem: {
+const styles = StyleSheet.create({
+    incomeItem: {
         backgroundColor: '#FFFFFF', // Fundo branco para os cartões
         borderLeftColor: '#4CAF50',
         borderLeftWidth: 4,
@@ -74,16 +69,18 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between', // Espaço entre os itens
         alignItems: 'center', // Centraliza os itens verticalmente
     },
-    expenseType: {
+    incomeType: {
         fontSize: 18,
         fontWeight: '500',
+        
     },
-    expenseAmount: {
+    incomeAmount: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#4CAF50',
+        color: '#333',
+        color: '#4CAF50', // Cor verde para destacar o tipo
     },
-    expenseDate: {
+    incomeDate: {
         fontSize: 16,
         color: '#757575', // Cor suave para as datas
     },

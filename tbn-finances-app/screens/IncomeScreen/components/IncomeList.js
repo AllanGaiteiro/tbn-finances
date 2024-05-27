@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Dimensions, StyleSheet } from 'react-native';
 import { Income } from '../../../entity/Income';
-import { IncomeItem } from './IncomeItem';
+import { IncomeItem } from '../../TransactionScreen/components/IncomeItem';
 import { incomeRepository } from '../../../repositories/IncomeRepository';
 import { transactionRepository } from '../../../repositories/TransactionRepository';
 

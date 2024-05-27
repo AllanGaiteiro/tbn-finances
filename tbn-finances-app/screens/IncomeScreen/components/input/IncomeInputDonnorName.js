@@ -17,8 +17,8 @@ export function IncomeInputDonnorName({ isVisible, income, setIncome }) {
             <TextInput
                 style={styles.input}
                 placeholder="Digite o nome..."
-                value={income.donorName}
-                onChangeText={(text) => handleInputChange('donorName', text)} />
+                value={income.description}
+                onChangeText={(text) => handleInputChange('description', text)} />
         </View>;
 }
 

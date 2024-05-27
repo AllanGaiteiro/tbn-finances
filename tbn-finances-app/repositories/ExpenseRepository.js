@@ -39,17 +39,6 @@ export class ExpenseRepository {
             console.error("Error deleting expense: ", error);
         }
     }
-
-    observeExpenses(setExpenses) {
-        const q = query(this.collectionRef, orderBy("dueDate", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const expenses = snapshot.docs.map(doc => Expense.fromFirebase({ ...doc.data(), id: doc.id }));
-            setExpenses(expenses);
-        }, (error) => {
-            console.error('Error observing expenses:', error);
-        });
-        return unsubscribe;
-    }
 }
 
 export const expenseRepository = new ExpenseRepository();

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { expenseRepository } from '../../repositories/ExpenseRepository';
-import { transactionRepository } from '../../repositories/TransactionRepository';
+import { transactionRepository } from '../../../repositories/TransactionRepository';
+import { AmountByMonth } from '../../../entity/AmountByMonth';
 
-export const ExpenseSummaryCard = () => {
+export const SummaryCard = () => {
     const [loading, setLoading] = useState(true);
-    const [amountByMonth, setAmountByMonth] = useState(0);
+    const [amountByMonth, setAmountByMonth] = useState(new AmountByMonth());
     const [amountPaymentByMonth, setAmountPaymentByMonth] = useState(0);
     const [amountNotPaymentByMonth, setAmountNotPaymentByMonth] = useState(0);
 
@@ -13,11 +13,11 @@ export const ExpenseSummaryCard = () => {
     useEffect(() => {
         // Assinaturas retornarão funções para desinscrever
         const unsubAmountByMonth = transactionRepository.observeAmountByMonth(setAmountByMonth);
-        const unsubAmountPaymentByMonth = transactionRepository.observeAmountPaymentByMonth(setAmountPaymentByMonth);
-        const unsubAmountNotPaymentByMonth = transactionRepository.observeAmountNotPaymentByMonth(setAmountNotPaymentByMonth);
+        // const unsubAmountPaymentByMonth = transactionRepository.observeAmountPaymentByMonth(setAmountPaymentByMonth);
+        // const unsubAmountNotPaymentByMonth = transactionRepository.observeAmountNotPaymentByMonth(setAmountNotPaymentByMonth);
 
         // Quando qualquer dado é atualizado, removemos o indicador de carregamento
-        const unsubscribes = [unsubAmountByMonth, unsubAmountPaymentByMonth, unsubAmountNotPaymentByMonth];
+        const unsubscribes = [unsubAmountByMonth /*, unsubAmountPaymentByMonth, unsubAmountNotPaymentByMonth*/];
         const checkLoading = () => {
             if (unsubscribes.every((unsub) => unsub !== undefined)) {
                 setLoading(false);
@@ -28,16 +28,17 @@ export const ExpenseSummaryCard = () => {
 
         return () => {
             unsubAmountByMonth();
+            /*
             unsubAmountPaymentByMonth();
             unsubAmountNotPaymentByMonth();
+            */
         };
     }, []);
 
     const getBorderColorByStatus = (status) => {
         switch (status) {
-            case 'pendente': return '#FF9800'; // Laranja para indicar pendência
-            case 'paga': return '#4CAF50'; // Verde para indicar que a despesa foi paga
-            case 'atrasada': return '#F44336'; // Vermelho para indicar atraso no pagamento
+            case 'recebida': return '#4CAF50'; // Verde para indicar que a despesa foi paga
+            case 'gasto': return '#F44336'; // Vermelho para indicar atraso no pagamento
             default: return '#757575'; // Cinza para estados não especificados
         }
     };
@@ -50,17 +51,17 @@ export const ExpenseSummaryCard = () => {
         <View style={styles.card}>
             <Text style={styles.cardTitle}>Resumo de Saidas do Mes</Text>
             <View style={styles.row}>
-                <Text style={styles.label}>Valor Total:</Text>
-                <Text style={styles.totalValue}>R$ {amountByMonth.toFixed(2)}</Text>
+                <Text style={styles.label}>Valor Recebido:</Text>
+                <Text style={[styles.totalValue, { color: getBorderColorByStatus('recebida') }]}>R$ {amountByMonth.income?.toFixed(2)}</Text>
             </View>
             <View style={styles.row}>
                 <Text style={styles.label}>Valor Pago:</Text>
-                <Text style={[styles.totalValue, { color: getBorderColorByStatus('paga') }]}>R$ {amountPaymentByMonth.toFixed(2)}</Text>
+                <Text style={[styles.totalValue, { color: getBorderColorByStatus('gasto') }]}>R$ {amountByMonth.expense?.toFixed(2)}</Text>
             </View>
 
             <View style={styles.row}>
-                <Text style={styles.label}>Falta Pagar:</Text>
-                <Text style={[styles.totalValue, { color: getBorderColorByStatus('pendente') }]}>R$ {amountNotPaymentByMonth.toFixed(2)}</Text>
+                <Text style={styles.label}>Balanço Geral:</Text>
+                <Text style={[styles.totalValue, { color: getBorderColorByStatus(amountByMonth.total > 0 ? 'recebida':'gasto') }]}>R$ {amountByMonth.total?.toFixed(2)}</Text>
             </View>
 
 
