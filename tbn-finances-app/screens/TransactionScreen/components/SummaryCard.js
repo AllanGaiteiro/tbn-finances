@@ -6,18 +6,13 @@ import { AmountByMonth } from '../../../entity/AmountByMonth';
 export const SummaryCard = () => {
     const [loading, setLoading] = useState(true);
     const [amountByMonth, setAmountByMonth] = useState(new AmountByMonth());
-    const [amountPaymentByMonth, setAmountPaymentByMonth] = useState(0);
-    const [amountNotPaymentByMonth, setAmountNotPaymentByMonth] = useState(0);
-
 
     useEffect(() => {
         // Assinaturas retornarão funções para desinscrever
         const unsubAmountByMonth = transactionRepository.observeAmountByMonth(setAmountByMonth);
-        // const unsubAmountPaymentByMonth = transactionRepository.observeAmountPaymentByMonth(setAmountPaymentByMonth);
-        // const unsubAmountNotPaymentByMonth = transactionRepository.observeAmountNotPaymentByMonth(setAmountNotPaymentByMonth);
-
+        
         // Quando qualquer dado é atualizado, removemos o indicador de carregamento
-        const unsubscribes = [unsubAmountByMonth /*, unsubAmountPaymentByMonth, unsubAmountNotPaymentByMonth*/];
+        const unsubscribes = [unsubAmountByMonth];
         const checkLoading = () => {
             if (unsubscribes.every((unsub) => unsub !== undefined)) {
                 setLoading(false);

@@ -6,6 +6,7 @@ import { TransactionEntity } from '../../entity/TransactionEntity';
 import { transactionRepository } from '../../repositories/TransactionRepository';
 import { SortButton } from './SortButton';
 import { SpreadsheetGenerator } from './SpreadsheetGenerator';
+import { TypeTransactionSlider } from './components/TypeTransactionSlider';
 
 export function TransactionList({ selectedMonth, selectedYear }) {
     const [transactions, setTransactions] = useState([new TransactionEntity()]);
@@ -13,6 +14,7 @@ export function TransactionList({ selectedMonth, selectedYear }) {
     const [filterText, setFilterText] = useState('');
     const [sortBy, setSortBy] = useState('dueDate');
     const [sortOrder, setSortOrder] = useState('desc');
+    const [typeTransaction, setTypeTransaction] = useState(null);
     const screenHeight = Dimensions.get('window').height; // Obter a altura da tela
 
     useEffect(() => {
@@ -23,12 +25,15 @@ export function TransactionList({ selectedMonth, selectedYear }) {
     useEffect(() => {
         // Aplicar filtros e ordenação quando as transações mudarem
         applyFilters();
-    }, [transactions, filterText, sortBy, sortOrder]);
+    }, [transactions, filterText, typeTransaction]);
 
     const applyFilters = () => {
         let filtered = transactions;
         if (filterText.trim() !== '') {
             filtered = filtered.filter(transaction => transaction.description.toLowerCase().includes(filterText.trim().toLowerCase()));
+        }
+        if (typeTransaction) {
+            filtered = filtered.filter(transaction => transaction.typeTransaction === typeTransaction);
         }
         setFilteredTransactions(filtered);
     };
@@ -65,7 +70,7 @@ export function TransactionList({ selectedMonth, selectedYear }) {
                     onChangeText={text => setFilterText(text)}
                 />
                 <SpreadsheetGenerator transactions={filteredTransactions} />
-
+                <TypeTransactionSlider typeTransaction={typeTransaction} setTypeTransaction={setTypeTransaction} />
                 <View style={styles.sortButtonsContainer}>
                     {ParamsOrder.map(p =>
                         <SortButton

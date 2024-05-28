@@ -3,12 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 
 const statusOptions = [
-  { label: 'Cancelado', value: 'cancelado', color: '#F44336' }, // Vermelho
-  { label: 'Em Progresso', value: 'em_progresso', color: '#2196F3' }, // Azul
-  { label: 'Recebido', value: 'recebido', color: '#4CAF50' }, // Verde
+  { label: 'Despesas', value: 'expense', active: false, color: '#F44336' }, // Vermelho
+  { label: 'Ofertas', value: 'income', active: false, color: '#4CAF50' }, // Verde
 ];
 
-export const StatusSlider = ({ currentStatus, onStatusChange }) => {
+export const TypeTransactionSlider = ({ typeTransaction, setTypeTransaction }) => {
   // Função para determinar a cor de fundo com base no status atual
   const getBackgroundColor = (value) => {
     const statusOption = statusOptions.find(option => option.value === value);
@@ -22,13 +21,16 @@ export const StatusSlider = ({ currentStatus, onStatusChange }) => {
           key={option.value}
           style={[
             styles.sliderOption,
-            currentStatus === option.value ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
+            typeTransaction === option.value ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
           ]}
-          onPress={() => onStatusChange(option.value)}
+          onPress={() => {
+            option.active = !option.active;
+            setTypeTransaction(option.active ? option.value : null)
+          }}
         >
           <Text style={[
             styles.sliderOptionText,
-            currentStatus === option.value ? styles.activeText : styles.inactiveText
+            typeTransaction === option.value ? styles.activeText : styles.inactiveText
           ]}>{option.label}</Text>
         </TouchableOpacity>
       ))}

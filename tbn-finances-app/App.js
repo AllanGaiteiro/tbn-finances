@@ -2,7 +2,6 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DashboardScreen from './screens/DashboardScreen';
-import IncomeScreen from './screens/IncomeScreen/IncomeScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from 'react-native';
 import { TransactionScreen } from './screens/TransactionScreen/TransactionScreen';
