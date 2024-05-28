@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import {  createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, EmailAuthProvider, updatePassword, reauthenticateWithCredential, updateEmail } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { firebaseConfig } from './firebaseConfig';
@@ -50,10 +50,45 @@ class FirebaseService {
         }
     }
 
+    async logout() {
+        try {
+            await signOut(this.auth); // Função para deslogar o usuário do Firebase
+        } catch (error) {
+            console.error("Erro ao fazer logout:", error);
+            throw error;
+        }
+    }
+
     // Função para monitorar o estado de autenticação
     monitorAuthState(callback) {
         onAuthStateChanged(this.auth, callback);
     }
+
+    async changeEmail(currentPassword, newEmail) {
+        try {
+            const user = this.auth.currentUser;
+            const credential = EmailAuthProvider.credential(user.email, currentPassword);
+            await reauthenticateWithCredential(user, credential);
+            await updateEmail(user, newEmail);
+            return user;
+        } catch (error) {
+            console.error("Erro ao alterar o email:", error);
+            throw error;
+        }
+    }
+
+    async changePassword(currentPassword, newPassword) {
+        try {
+            const user = this.auth.currentUser;
+            const credential = EmailAuthProvider.credential(user.email, currentPassword);
+            await reauthenticateWithCredential(user, credential);
+            await updatePassword(user, newPassword);
+        } catch (error) {
+            console.error("Erro ao alterar a senha:", error);
+            throw error;
+        }
+    }
+
 }
 
 // Exporta uma instância da classe para ser reutilizada em todo o aplicativo
