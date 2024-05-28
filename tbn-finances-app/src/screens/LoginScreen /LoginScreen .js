@@ -22,6 +22,7 @@ export const LoginScreen = () => {
 
     return (
         <View style={styles.container}>
+            <Text style={styles.appName}>TBN Finances</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -38,8 +39,9 @@ export const LoginScreen = () => {
                 autoCapitalize="none"
             />
             <Button title="Entrar" onPress={handleLogin} />
-            <Button title="Não tem uma conta? Cadastre-se" onPress={() => navigation.navigate('SignUp')} />
-
+            <Text style={styles.signupLink} onPress={() => navigation.navigate('SignUp')}>
+                Não tem uma conta? Cadastre-se
+            </Text>
         </View>
     );
 };
@@ -48,12 +50,26 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
         padding: 20,
+        backgroundColor: '#fff',
+    },
+    appName: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 30,
     },
     input: {
         marginBottom: 15,
         borderWidth: 1,
-        borderColor: 'gray',
+        borderColor: '#ccc',
+        borderRadius: 5,
         padding: 10,
+        width: '100%',
+    },
+    signupLink: {
+        marginTop: 15,
+        color: 'blue',
+        textDecorationLine: 'underline',
     },
 });
