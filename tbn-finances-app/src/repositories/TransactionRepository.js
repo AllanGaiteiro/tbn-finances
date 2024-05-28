@@ -6,14 +6,14 @@ import { TransactionEntity } from '../entity/TransactionEntity';
 import { AmountByMonth } from '../entity/AmountByMonth';
 
 class TransactionRepository {
-    expense = expenseRepository;
-    income = incomeRepository;
-    constructor() {
-        this.docRef = (id) => doc(firestore, 'finances/igreja/transactions', id);
-        this.collectionRef = collection(firestore, 'finances/igreja/transactions');
+    constructor(userId) {
+        this.userId = userId;
+        this.expense = expenseRepository(this.userId);
+        this.income = incomeRepository(this.userId)
+        this.collectionRef = collection(firestore, `users/${this.userId}/transactions`);
+        this.docRef = (id) => doc(firestore, `users/${this.userId}/transactions`, id);
     }
-
-    observeTransactionForSelectedMonth(setTransaction, { selectedMonth, selectedYear, sortOrder, sortBy }) {
+    observeTransactionForSelectedMonth(setTransaction,setLoading, { selectedMonth, selectedYear, sortOrder, sortBy }) {
         const startDate = new Date(selectedYear, selectedMonth, 1);
         const endDate = new Date(selectedYear, selectedMonth + 1, 0);
 
@@ -24,6 +24,7 @@ class TransactionRepository {
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const expenses = snapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+            setLoading(false);
             setTransaction(expenses);
         });
 
@@ -132,4 +133,9 @@ class TransactionRepository {
 }
 // Exporta uma instância do repositório para ser utilizada no aplicativo
 
-export const transactionRepository = new TransactionRepository();
+export const transactionRepository = (userId) => {
+    if (!userId) {
+        throw new Error('TransactionRepository - UserId must be provided');
+    }
+    return new TransactionRepository(userId);
+}

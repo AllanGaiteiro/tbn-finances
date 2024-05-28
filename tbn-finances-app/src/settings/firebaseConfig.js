@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 
-const firebaseConfig = {
+export const firebaseConfig = {
     apiKey: "AIzaSyB2g5KViGb0jMSkM4LXBQBVymEd-t6EJEM",
     authDomain: "tbn-staging.firebaseapp.com",
     projectId: "tbn-staging",

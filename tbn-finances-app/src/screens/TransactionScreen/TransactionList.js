@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Dimensions, TextInput, Text } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions, TextInput, Text, ActivityIndicator } from 'react-native';
 import { ExpenseItem } from './components/ExpenseItem';
 import { IncomeItem } from './components/IncomeItem';
 import { TransactionEntity } from '../../entity/TransactionEntity';
@@ -7,20 +7,22 @@ import { transactionRepository } from '../../repositories/TransactionRepository'
 import { SortButton } from './SortButton';
 import { SpreadsheetGenerator } from './SpreadsheetGenerator';
 import { TypeTransactionSlider } from './components/TypeTransactionSlider';
-
+import { useUser } from '../../providers/UserProvider';
 export function TransactionList({ selectedMonth, selectedYear }) {
-    const [transactions, setTransactions] = useState([new TransactionEntity()]);
+    const { userId } = useUser();
+    const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [filterText, setFilterText] = useState('');
     const [sortBy, setSortBy] = useState('dueDate');
     const [sortOrder, setSortOrder] = useState('desc');
     const [typeTransaction, setTypeTransaction] = useState(null);
-    const screenHeight = Dimensions.get('window').height; // Obter a altura da tela
+    const [loading, setLoading] = useState(true);
+    const screenHeight = Dimensions.get('window').height;
 
     useEffect(() => {
-        const unsubscribe = transactionRepository.observeTransactionForSelectedMonth(setTransactions, { selectedMonth, selectedYear, sortOrder, sortBy });
+        const unsubscribe = transactionRepository(userId).observeTransactionForSelectedMonth(setTransactions,setLoading, { selectedMonth, selectedYear, sortOrder, sortBy });
         return () => unsubscribe();
-    }, [selectedMonth, selectedYear, sortBy, sortOrder]);
+    }, [selectedMonth, selectedYear, sortBy, sortOrder, userId]);
 
     useEffect(() => {
         // Aplicar filtros e ordenação quando as transações mudarem
@@ -43,7 +45,7 @@ export function TransactionList({ selectedMonth, selectedYear }) {
             toggleSortOrder();
         } else {
             setSortBy(selectedSortBy);
-            setSortOrder('asc'); // Definir ordem padrão como ascendente ao selecionar um novo critério de ordenação
+            setSortOrder('asc');
         }
     };
 
@@ -83,20 +85,25 @@ export function TransactionList({ selectedMonth, selectedYear }) {
                     )}
                 </View>
             </View>
-            <ScrollView nestedScrollEnabled={true}>
-                {filteredTransactions.length > 0 ? (
-                    filteredTransactions.map((transaction, index) => (
-                        transaction.typeTransaction === 'expense' ?
-                            <ExpenseItem key={index} expense={transaction} /> :
-                            <IncomeItem key={index} income={transaction} />
-                    ))
-                ) : (
-                    <Text style={styles.emptyMessage}>Nenhuma valor encontrada.</Text>
-                )}
-            </ScrollView>
+            {loading ? (
+                <ActivityIndicator size="large" />
+            ) : (
+                <ScrollView nestedScrollEnabled={true}>
+                    {filteredTransactions.length > 0 ? (
+                        filteredTransactions.map((transaction, index) => (
+                            transaction.typeTransaction === 'expense' ?
+                                <ExpenseItem key={index} expense={transaction} /> :
+                                <IncomeItem key={index} income={transaction} />
+                        ))
+                    ) : (
+                        <Text style={styles.emptyMessage}>Nenhuma valor encontrada.</Text>
+                    )}
+                </ScrollView>
+            )}
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     filtersContainer: {

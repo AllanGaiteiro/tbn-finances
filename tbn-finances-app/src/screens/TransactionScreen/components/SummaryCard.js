@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { transactionRepository } from '../../../repositories/TransactionRepository';
 import { AmountByMonth } from '../../../entity/AmountByMonth';
+import { useUser } from '../../../providers/UserProvider';
 
 export const SummaryCard = () => {
     const [loading, setLoading] = useState(true);
     const [amountByMonth, setAmountByMonth] = useState(new AmountByMonth());
+    const { userId } = useUser();
+
+     
 
     useEffect(() => {
         // Assinaturas retornarão funções para desinscrever
-        const unsubAmountByMonth = transactionRepository.observeAmountByMonth(setAmountByMonth);
+        const unsubAmountByMonth = transactionRepository(userId).observeAmountByMonth(setAmountByMonth);
         
         // Quando qualquer dado é atualizado, removemos o indicador de carregamento
         const unsubscribes = [unsubAmountByMonth];
@@ -28,7 +32,7 @@ export const SummaryCard = () => {
             unsubAmountNotPaymentByMonth();
             */
         };
-    }, []);
+    }, [userId]);
 
     const getBorderColorByStatus = (status) => {
         switch (status) {

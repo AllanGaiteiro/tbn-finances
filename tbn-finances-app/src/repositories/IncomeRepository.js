@@ -3,9 +3,11 @@ import { collection, query, writeBatch, onSnapshot, where, orderBy, addDoc, getD
 import { firestore } from '../settings/firebaseConfig';
 
 class IncomeRepository {
-    constructor(firestore) {
-        this.collectionRef = collection(firestore, 'finances/igreja/transactions');
-        this.docRef = (id) => doc(firestore, 'finances/igreja/transactions', id);
+    constructor(userId) {
+        this.userId = userId;
+        this.collectionRef = collection(firestore, `users/${this.userId}/transactions`);
+        this.docRef = (id) => doc(firestore, `users/${this.userId}/transactions`, id);
+
     }
 
     // Adicionar um novo income
@@ -88,4 +90,9 @@ class IncomeRepository {
 }
 
 // Exporta uma instância do repositório para ser utilizada no aplicativo
-export const incomeRepository = new IncomeRepository(firestore);
+export const incomeRepository = (userId) => {
+    if (!userId) {
+        throw new Error('IncomeRepository - UserId must be provided');
+    }
+    return new IncomeRepository(userId);
+};

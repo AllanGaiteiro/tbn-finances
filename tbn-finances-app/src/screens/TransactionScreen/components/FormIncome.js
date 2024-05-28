@@ -12,10 +12,15 @@ import { IncomeInputLastRecurrenceDateWeb } from './input/IncomeInputLastRecurre
 import { ButtonBack } from '../../../components/ButtonBack';
 import { ButtonSave } from '../../../components/ButtonSave';
 import { transactionRepository } from '../../../repositories/TransactionRepository';
+import { useUser } from '../../../providers/UserProvider';
 
 
 export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible }) {
     const [income, setIncome] = useState(incomeItem || new Income());
+    const { userId } = useUser();
+
+     
+
     const formValidateAmount = (income) => !income.amount || isNaN(income.amount) || income.amount <= 0;
     const formValidateType = (income) => !income.type;
     const formValidateIsRecurrence = (income) => !income.isRecurrence && !income.transactionDate;
@@ -44,12 +49,12 @@ export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible
 
             try {
                 if (income.id && income.type === 'oferta_mensal') {
-                    await transactionRepository.income.handleRecurrenceUpdate(income)
+                    await transactionRepository(userId).income.handleRecurrenceUpdate(income)
                 } else if (income.id) {
-                    await transactionRepository.income.updateIncome(income)
+                    await transactionRepository(userId).income.updateIncome(income)
                 } else {
                     income.creationDate = new Date()
-                    await transactionRepository.income.addIncome(income);
+                    await transactionRepository(userId).income.addIncome(income);
                 }
 
                 Alert.alert("Sucesso", "Renda adicionada com sucesso!");

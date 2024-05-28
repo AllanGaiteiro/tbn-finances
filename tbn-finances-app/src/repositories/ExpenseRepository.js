@@ -1,11 +1,11 @@
 // Importe os módulos necessários do Firebase
-import { collection, query, onSnapshot, orderBy, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../settings/firebaseConfig';
-import {Expense} from '../entity/Expense';
 
 export class ExpenseRepository {
-    constructor() {
-        this.collectionRef = collection(firestore, 'finances/igreja/transactions');
+    constructor(userId) {
+        this.userId = userId;
+        this.collectionRef = collection(firestore, `users/${this.userId}/transactions`);
     }
 
     async addExpense(expense) {
@@ -41,5 +41,10 @@ export class ExpenseRepository {
     }
 }
 
-export const expenseRepository = new ExpenseRepository();
+export const expenseRepository = (userId) => {
+    if (!userId) {
+        throw new Error('ExpenseRepository - UserId must be provided');
+    }
+    return new ExpenseRepository(userId);
+};
 

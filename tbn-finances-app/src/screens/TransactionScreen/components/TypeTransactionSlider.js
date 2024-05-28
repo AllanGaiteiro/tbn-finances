@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
   },
   sliderOption: {
     padding: 10,
+    paddingHorizontal: 40,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ccc',
