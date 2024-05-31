@@ -1,11 +1,12 @@
 // Importe os módulos necessários do Firebase
 import { collection, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../settings/firebaseConfig';
+import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
 
 export class ExpenseRepository {
-    constructor(userId) {
-        this.userId = userId;
-        this.collectionRef = collection(firestore, `users/${this.userId}/transactions`);
+    constructor(account) {
+        this.account = account;
+        this.collectionRef = collection(firestore, `accounts/${this.account}/transactions`);
     }
 
     async addExpense(expense) {
@@ -17,7 +18,7 @@ export class ExpenseRepository {
             });
             console.log("Expense successfully added with ID: ", docRef.id);
         } catch (error) {
-            console.error("Error adding expense: ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error adding expense: " + expense.id + " - ");
         }
     }
 
@@ -27,7 +28,7 @@ export class ExpenseRepository {
             await updateDoc(expenseRef, expense);
             console.log("Expense successfully updated - ", expense.id);
         } catch (error) {
-            console.error("Error updating expense: ", expense.id, " - ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error updating expense: " + expense.id + " - ");
         }
     }
 
@@ -36,15 +37,15 @@ export class ExpenseRepository {
             await deleteDoc(doc(this.collectionRef, expenseId));
             console.log("Expense successfully deleted");
         } catch (error) {
-            console.error("Error deleting expense: ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error deleting expense: " + account.id + " - ");
         }
     }
 }
 
-export const expenseRepository = (userId) => {
-    if (!userId) {
-        throw new Error('ExpenseRepository - UserId must be provided');
+export const expenseRepository = (account) => {
+    if (!account) {
+        throw new Error('ExpenseRepository - account must be provided');
     }
-    return new ExpenseRepository(userId);
+    return new ExpenseRepository(account);
 };
 

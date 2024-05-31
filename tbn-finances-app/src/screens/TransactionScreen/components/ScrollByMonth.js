@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { transactionRepository } from '../../../repositories/TransactionRepository';
-import { useUser } from '../../../providers/UserProvider';
+import { useAccount } from '../../../providers/AccountProvider';
 
 export const ScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
     const [transactionMonths, setTransactionMonths] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { userId } = useUser();
-
-     
+    const { account } = useAccount();
 
     useEffect(() => {
-        const unsubscribe = transactionRepository(userId).observeTransactionAmountByMonth(setTransactionMonths, setLoading);
+        if(!account) return;
+        const unsubscribe = transactionRepository(account).observeTransactionAmountByMonth(setTransactionMonths, setLoading);
 
         return () => unsubscribe();
-    }, [userId]);
+    }, [account]);
 
     const getBorderColorByStatus = (status) => {
         switch (status) {

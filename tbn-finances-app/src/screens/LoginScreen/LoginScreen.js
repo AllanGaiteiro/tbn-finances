@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { firebaseService } from '../../settings/FirebaseService';
+import { userAuthService } from '../../services/UserAuthService';
 
 export const LoginScreen = () => {
     const navigation = useNavigation();
@@ -11,7 +11,7 @@ export const LoginScreen = () => {
 
     const handleLogin = async () => {
         try {
-            const userCredential = await firebaseService.login(email, password);
+            const userCredential = await userAuthService.login(email, password);
             // Usuário logado com sucesso, userCredential.user contém as informações do usuário
             Alert.alert("Login bem-sucedido", "Você está logado!");
         } catch (error) {

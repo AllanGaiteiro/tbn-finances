@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoginScreen } from '../screens/LoginScreen /LoginScreen ';
+import { LoginScreen } from '../screens/LoginScreen/LoginScreen';
 import { SignUpScreen } from '../screens/SignUpScreen/SignUpScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 

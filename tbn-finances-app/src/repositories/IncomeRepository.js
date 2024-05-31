@@ -1,13 +1,13 @@
 // Importe os módulos necessários do Firebase
 import { collection, query, writeBatch, onSnapshot, where, orderBy, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../settings/firebaseConfig';
+import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
 
 class IncomeRepository {
-    constructor(userId) {
-        this.userId = userId;
-        this.collectionRef = collection(firestore, `users/${this.userId}/transactions`);
-        this.docRef = (id) => doc(firestore, `users/${this.userId}/transactions`, id);
-
+    constructor(account) {
+        this.account = account;
+        this.collectionRef = collection(firestore, `accounts/${this.account}/transactions`);
+        this.docRef = (id) => doc(firestore, `accounts/${this.accountId}/transactions`, id);
     }
 
     // Adicionar um novo income
@@ -16,7 +16,7 @@ class IncomeRepository {
             const docRef = await addDoc(this.collectionRef, income);
             console.log("Income successfully added with ID: ", docRef.id);
         } catch (error) {
-            console.error("Error adding income: ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error adding income: ");            
         }
     }
 
@@ -27,7 +27,7 @@ class IncomeRepository {
             await updateDoc(incomeRef, income);
             console.log("Income successfully updated - ", income.id);
         } catch (error) {
-            console.error("Error updating income: ", income.id, " - ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error updating income: " + income.id + " - ");            
         }
     }
 
@@ -59,8 +59,7 @@ class IncomeRepository {
             await batch.commit();
             console.log("Recurrence update and new income creation successful.");
         } catch (error) {
-            console.error("Error handling recurrence update: ", error);
-            throw error; // Relança o erro para tratamento externo, se necessário
+            throw FirebaseErrorInterceptor.handle(error, "Error handling recurrence update: ");            
         }
     }
     async cancelIncome(income) {
@@ -73,7 +72,8 @@ class IncomeRepository {
             await updateDoc(incomeRef, cancelIncome);
             console.log("Income successfully canceled - ", cancelIncome.id);
         } catch (error) {
-            console.error("Error canceled income: ", cancelIncome.id, " - ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error canceled income: " + income.id + " - ");            
+
         }
     }
 
@@ -83,16 +83,16 @@ class IncomeRepository {
             await deleteDoc(doc(this.collectionRef, incomeId));
             console.log("Income successfully deleted");
         } catch (error) {
-            console.error("Error deleting income: ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error deleting income: ");            
         }
     }
 
 }
 
 // Exporta uma instância do repositório para ser utilizada no aplicativo
-export const incomeRepository = (userId) => {
-    if (!userId) {
-        throw new Error('IncomeRepository - UserId must be provided');
+export const incomeRepository = (account) => {
+    if (!account) {
+        throw new Error('IncomeRepository - account must be provided');
     }
-    return new IncomeRepository(userId);
+    return new IncomeRepository(account);
 };

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet, Text } from 'react-native';
-import { firebaseService } from '../../settings/FirebaseService';
+import { userAuthService } from '../../services/UserAuthService';
 
 export const SignUpScreen = ({ navigation }) => {
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleSignUp = () => {
-        firebaseService.signUp(email, password)
+        userAuthService.signUp({ name, email, password })
             .then(() => {
                 Alert.alert("Usuário criado com sucesso!");
             })
@@ -19,6 +20,13 @@ export const SignUpScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <Text style={styles.appName}>TBN Finances</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Mome"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="none"
+            />
             <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -36,7 +44,7 @@ export const SignUpScreen = ({ navigation }) => {
             />
             <Button title="Cadastrar" onPress={handleSignUp} />
             <Text style={styles.loginLink} onPress={() => navigation.navigate('Login')}>
-            á tem uma conta? Entre aqui
+                á tem uma conta? Entre aqui
             </Text>
         </View>
     );

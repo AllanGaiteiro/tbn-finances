@@ -13,13 +13,11 @@ import { ExpenseInputDueDateMobile } from './input/ExpenseInputDueDateMobile';
 import { ExpenseInputPaymentDateMobile } from './input/ExpenseInputPaymentDateMobile';
 import { ExpenseInputPaymentDateWeb } from './input/ExpenseInputPaymentDateWeb';
 import { transactionRepository } from '../../../repositories/TransactionRepository';
-import { useUser } from '../../../providers/UserProvider';
+import { useAccount } from '../../../providers/AccountProvider';
 
 export function FormExpense({ expense: expenseItem, isFormVisible, setIsFormVisible }) {
     const [expense, setExpense] = useState(expenseItem || new Expense());
-    const { userId } = useUser();
-
-     
+    const { account } = useAccount();
 
     const formValidateAmount = (expense) => !expense.amount || isNaN(expense.amount) || expense.amount <= 0;
     const formValidateType = (expense) => !expense.type;
@@ -50,12 +48,12 @@ export function FormExpense({ expense: expenseItem, isFormVisible, setIsFormVisi
 
             try {
                 if (expense.id && expense.type === 'mensal') {
-                    await transactionRepository(userId).expense.updateExpense(expense);
+                    await transactionRepository(account).expense.updateExpense(expense);
                 } else if (expense.id) {
-                    await transactionRepository(userId).expense.updateExpense(expense);
+                    await transactionRepository(account).expense.updateExpense(expense);
                 } else {
                     expense.creationDate = new Date();
-                    await transactionRepository(userId).expense.addExpense(expense);
+                    await transactionRepository(account).expense.addExpense(expense);
                 }
 
                 Alert.alert("Sucesso", "Despesa adicionada com sucesso!");

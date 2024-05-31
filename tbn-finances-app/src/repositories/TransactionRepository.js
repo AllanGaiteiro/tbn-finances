@@ -4,18 +4,19 @@ import { expenseRepository } from './ExpenseRepository';
 import { incomeRepository } from './IncomeRepository';
 import { TransactionEntity } from '../entity/TransactionEntity';
 import { AmountByMonth } from '../entity/AmountByMonth';
+import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
 
 class TransactionRepository {
-    constructor(userId) {
-        this.userId = userId;
-        this.expense = expenseRepository(this.userId);
-        this.income = incomeRepository(this.userId)
-        this.collectionRef = collection(firestore, `users/${this.userId}/transactions`);
-        this.docRef = (id) => doc(firestore, `users/${this.userId}/transactions`, id);
+    constructor(account) {
+        this.account = account;
+        this.expense = expenseRepository(account);
+        this.income = incomeRepository(account);
+        this.collectionRef = collection(firestore, `accounts/${this.account}/transactions`);
+        this.docRef = (id) => doc(firestore, `accounts/${this.account}/transactions`, id);
     }
-    observeTransactionForSelectedMonth(setTransaction,setLoading, { selectedMonth, selectedYear, sortOrder, sortBy }) {
-        const startDate = new Date(selectedYear, selectedMonth, 1);
-        const endDate = new Date(selectedYear, selectedMonth + 1, 0);
+    observeTransactionForSelectedMonth(setTransaction, setLoading, { selectedMonth, selectedYear, sortOrder, sortBy }) {
+        const startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0); // 0 horas, 0 minutos, 0 segundos
+        const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59); // 23 horas, 59 minutos, 59 segundos
 
         const q = query(this.collectionRef,
             where("dueDate", ">=", startDate),
@@ -23,9 +24,10 @@ class TransactionRepository {
             orderBy(sortBy || "dueDate", sortOrder || "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const expenses = snapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+            const transactions = snapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+            console.log(this.account, transactions.length)
             setLoading(false);
-            setTransaction(expenses);
+            setTransaction(transactions);
         });
 
         return unsubscribe;
@@ -73,8 +75,8 @@ class TransactionRepository {
             seExpenseMonths(sortedMonths);
             setLoading(false);
         }, (error) => {
-            console.error("Error observing expense by month:", error);
             setLoading(false);
+            throw FirebaseErrorInterceptor.handle(error, "Error observing expense by month:");
         });
 
         return unsubscribe;
@@ -115,7 +117,8 @@ class TransactionRepository {
             await batch.commit();
             console.log(`${recurrencePeriod} recurring expenses successfully added.`);
         } catch (error) {
-            console.error("Error adding recurring expense: ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error adding recurring expense: ");
+
         }
     }
 
@@ -126,16 +129,17 @@ class TransactionRepository {
             await updateDoc(expenseRef, { status: newStatus });
             console.log("Expense status successfully updated to: ", newStatus);
         } catch (error) {
-            console.error("Error updating expense status: ", error);
+            throw FirebaseErrorInterceptor.handle(error, "Error updating expense status: ");
+
         }
     }
 
 }
 // Exporta uma instância do repositório para ser utilizada no aplicativo
 
-export const transactionRepository = (userId) => {
-    if (!userId) {
-        throw new Error('TransactionRepository - UserId must be provided');
+export const transactionRepository = (account) => {
+    if (!account) {
+        throw new Error('TransactionRepository - account must be provided');
     }
-    return new TransactionRepository(userId);
+    return new TransactionRepository(account);
 }

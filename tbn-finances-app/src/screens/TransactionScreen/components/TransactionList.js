@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, TextInput, Text, ActivityIndicator } from 'react-native';
-import { ExpenseItem } from './components/ExpenseItem';
-import { IncomeItem } from './components/IncomeItem';
-import { TransactionEntity } from '../../entity/TransactionEntity';
-import { transactionRepository } from '../../repositories/TransactionRepository';
-import { SortButton } from './SortButton';
+import { ExpenseItem } from './ExpenseItem';
+import { IncomeItem } from './IncomeItem';
+import { transactionRepository } from '../../../repositories/TransactionRepository';
+import { SortButton } from './button/SortButton';
 import { SpreadsheetGenerator } from './SpreadsheetGenerator';
-import { TypeTransactionSlider } from './components/TypeTransactionSlider';
-import { useUser } from '../../providers/UserProvider';
+import { TypeTransactionSlider } from './TypeTransactionSlider';
+import { useAccount } from '../../../providers/AccountProvider';
 export function TransactionList({ selectedMonth, selectedYear }) {
-    const { userId } = useUser();
+    const { account } = useAccount();
     const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [filterText, setFilterText] = useState('');
@@ -20,9 +19,10 @@ export function TransactionList({ selectedMonth, selectedYear }) {
     const screenHeight = Dimensions.get('window').height;
 
     useEffect(() => {
-        const unsubscribe = transactionRepository(userId).observeTransactionForSelectedMonth(setTransactions,setLoading, { selectedMonth, selectedYear, sortOrder, sortBy });
+        if(!account) return;
+        const unsubscribe = transactionRepository(account).observeTransactionForSelectedMonth(setTransactions,setLoading, { selectedMonth, selectedYear, sortOrder, sortBy });
         return () => unsubscribe();
-    }, [selectedMonth, selectedYear, sortBy, sortOrder, userId]);
+    }, [selectedMonth, selectedYear, sortBy, sortOrder,account]);
 
     useEffect(() => {
         // Aplicar filtros e ordenação quando as transações mudarem

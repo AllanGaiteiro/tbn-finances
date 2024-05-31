@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Alert, StyleSheet } from 'react-native';
-import { firebaseService } from '../../settings/FirebaseService';
+import { userAuthService } from '../../services/UserAuthService';
 
 export const LogoutScreen = ({ navigation }) => {
   useEffect(() => {
@@ -29,7 +29,7 @@ export const LogoutScreen = ({ navigation }) => {
 
   const confirmLogout = async () => {
     try {
-      await firebaseService.logout();
+      await userAuthService.logout();
       Alert.alert("Logout bem-sucedido", "Você foi deslogado com sucesso!");
     } catch (error) {
       Alert.alert("Erro ao deslogar", error.message);

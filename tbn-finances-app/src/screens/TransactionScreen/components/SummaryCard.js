@@ -2,19 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { transactionRepository } from '../../../repositories/TransactionRepository';
 import { AmountByMonth } from '../../../entity/AmountByMonth';
-import { useUser } from '../../../providers/UserProvider';
+import { useAccount } from '../../../providers/AccountProvider';
 
 export const SummaryCard = () => {
     const [loading, setLoading] = useState(true);
     const [amountByMonth, setAmountByMonth] = useState(new AmountByMonth());
-    const { userId } = useUser();
-
-     
+    const { account } = useAccount();
 
     useEffect(() => {
+        if(!account) return;
         // Assinaturas retornarão funções para desinscrever
-        const unsubAmountByMonth = transactionRepository(userId).observeAmountByMonth(setAmountByMonth);
-        
+        const unsubAmountByMonth = transactionRepository(account).observeAmountByMonth(setAmountByMonth);
+
         // Quando qualquer dado é atualizado, removemos o indicador de carregamento
         const unsubscribes = [unsubAmountByMonth];
         const checkLoading = () => {
@@ -27,12 +26,8 @@ export const SummaryCard = () => {
 
         return () => {
             unsubAmountByMonth();
-            /*
-            unsubAmountPaymentByMonth();
-            unsubAmountNotPaymentByMonth();
-            */
         };
-    }, [userId]);
+    }, [account]);
 
     const getBorderColorByStatus = (status) => {
         switch (status) {
@@ -60,7 +55,7 @@ export const SummaryCard = () => {
 
             <View style={styles.row}>
                 <Text style={styles.label}>Balanço Geral:</Text>
-                <Text style={[styles.totalValue, { color: getBorderColorByStatus(amountByMonth.total > 0 ? 'recebida':'gasto') }]}>R$ {amountByMonth.total?.toFixed(2)}</Text>
+                <Text style={[styles.totalValue, { color: getBorderColorByStatus(amountByMonth.total > 0 ? 'recebida' : 'gasto') }]}>R$ {amountByMonth.total?.toFixed(2)}</Text>
             </View>
 
 
