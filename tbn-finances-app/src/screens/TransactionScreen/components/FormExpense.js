@@ -50,13 +50,13 @@ export function FormExpense({ expense: expenseItem, isFormVisible, setIsFormVisi
                 if (expense.id && expense.type === 'mensal') {
                     await transactionRepository(account).expense.updateExpense(expense);
                 } else if (expense.id) {
+                    income.lastUpdateDate = new Date();
                     await transactionRepository(account).expense.updateExpense(expense);
                 } else {
                     expense.creationDate = new Date();
                     await transactionRepository(account).expense.addExpense(expense);
                 }
 
-                Alert.alert("Sucesso", "Despesa adicionada com sucesso!");
                 setExpense(new Expense()); // Reinicie o formulário
                 setIsFormVisible(false); // Esconda o formulário
             } catch (e) {

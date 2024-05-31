@@ -25,7 +25,8 @@ export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible
     const formValidateType = (income) => !income.type;
     const formValidateIsRecurrence = (income) => !income.isRecurrence && !income.transactionDate;
     const formValidate = () => formValidateAmount(income) || formValidateType(income) || formValidateIsRecurrence(income)
-
+    const isRecurrence = () => income.id && income.type === 'oferta_mensal'
+    const isUpdate = () => income.id
     const validateForm = () => {
         const title = 'Erro';
         const message = "Por favor, selecione um"
@@ -48,16 +49,16 @@ export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible
         if (validateForm()) {
 
             try {
-                if (income.id && income.type === 'oferta_mensal') {
+                if (isRecurrence()) {
                     await transactionRepository(account).income.handleRecurrenceUpdate(income)
-                } else if (income.id) {
+                }else if (isUpdate()) {
+                    income.lastUpdateDate = new Date()
                     await transactionRepository(account).income.updateIncome(income)
                 } else {
                     income.creationDate = new Date()
                     await transactionRepository(account).income.addIncome(income);
                 }
 
-                Alert.alert("Sucesso", "Renda adicionada com sucesso!");
                 setIncome(new Income()); // Reinicie o formulário
                 setIsFormVisible(false); // Esconda o formulário
             } catch (e) {

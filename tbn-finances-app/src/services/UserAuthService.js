@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../settings/firebaseConfig';
 import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
 import { userService } from './UserService';
+import { Alert } from 'react-native';
 
 class UserAuthService {
     constructor() {
@@ -70,21 +71,20 @@ class UserAuthService {
                 updateEmail(user, newEmail)]);
             return user;
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Erro ao alterar o email:");
+            Alert.alert("Erro ao alterar email", FirebaseErrorInterceptor.handle(error, "Erro ao alterar o email:"));
         }
     }
 
     async changeDisplayName(newDisplayName) {
         try {
             const user = this.auth.currentUser;
-
             await Promise.all([
                 updateProfile(user, { displayName: newDisplayName }),
                 userService.updateDisplayName(user.uid, newDisplayName)
             ]);
             return user;
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Erro ao alterar o nome:");
+            Alert.alert("Erro ao alterar o nome:", FirebaseErrorInterceptor.handle(error, "Erro ao alterar o nome:"));
         }
     }
     async changePassword(currentPassword, newPassword) {
@@ -94,7 +94,8 @@ class UserAuthService {
             await reauthenticateWithCredential(user, credential);
             await updatePassword(user, newPassword);
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Erro ao alterar a senha:");
+            Alert.alert("Erro ao alterar a senha: ", FirebaseErrorInterceptor.handle(error, "Erro ao alterar a senha: "));
+
         }
     }
 }

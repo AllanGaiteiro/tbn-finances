@@ -10,15 +10,7 @@ export const EditEmail = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [expandEmail, setExpandEmail] = useState(false);
 
-  const handleChangeEmail = async () => {
-    try {
-      await userAuthService.changeEmail(currentEmail, newEmail, currentPassword);
-      Alert.alert("Email alterado com sucesso!");
-    } catch (error) {
-      const errorMessage = handleFirebaseError(error); // Utiliza a função de tratamento de erros
-      Alert.alert("Erro ao alterar email", errorMessage);
-    }
-  };
+  const handleChangeEmail = () => userAuthService.changeEmail(currentEmail, newEmail, currentPassword);
 
   return (
     <TouchableOpacity onPress={() => setExpandEmail(!expandEmail)}>

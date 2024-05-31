@@ -10,15 +10,7 @@ export const EditPassword = () => {
     const [newPassword, setNewPassword] = useState('');
     const [expandPassword, setExpandPassword] = useState(false);
 
-    const handleChangePassword = async () => {
-        try {
-            await userAuthService.changePassword(currentPassword, newPassword);
-            Alert.alert("Senha alterada com sucesso!");
-        } catch (error) {
-            const errorMessage = handleFirebaseError(error); // Utiliza a função de tratamento de erros
-            Alert.alert("Erro ao alterar senha", errorMessage);
-        }
-    };
+    const handleChangePassword = () => userAuthService.changePassword(currentPassword, newPassword);
 
     return (
         <TouchableOpacity onPress={() => setExpandPassword(!expandPassword)}>

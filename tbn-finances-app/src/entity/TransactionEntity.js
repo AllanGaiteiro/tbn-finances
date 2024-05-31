@@ -12,7 +12,8 @@ export class TransactionEntity {
         this.description = ''; // Descrição ou nome do destinatário (pessoa ou empresa)
         this.totalInstallments = null; // Total de parcelas (para "Parcela")
         this.currentInstallment = null; // Número da parcela atual (para "Parcela")
-        this.creationDate = new Date(); // Data de criação do registro da despesa
+        this.creationDate = new Date();
+        this.lastUpdateDate = new Date();
         this.isRecurrence = false;
 
         this.lastRecurrenceDate = null;
@@ -32,6 +33,7 @@ export class TransactionEntity {
         expense.totalInstallments = data.totalInstallments || null;
         expense.currentInstallment = data.currentInstallment || null;
         expense.creationDate = data.creationDate?.toDate();
+        expense.lastUpdateDate = data.lastUpdateDate?.toDate();
         expense.lastRecurrenceDate = data.lastRecurrenceDate;
         expense.isRecurrence = data.isRecurrence;
         return expense;
@@ -50,6 +52,7 @@ export class TransactionEntity {
             totalInstallments: this.totalInstallments,
             currentInstallment: this.currentInstallment,
             creationDate: this.creationDate,
+            lastUpdateDate: this.lastUpdateDate,
             lastRecurrenceDate: this.lastRecurrenceDate,
             isRecurrence: this.isRecurrence
         };
@@ -64,10 +67,10 @@ export class TransactionEntity {
         transacaoConvertida['Status'] = this.status;
         transacaoConvertida['Parcelas'] = this.typeTransaction === 'expense' && this.type === 'parcela' ? `${this.currentInstallment}/${this.totalInstallments}` : null;
 
-        if(this.typeTransaction === 'income'){
+        if (this.typeTransaction === 'income') {
             transacaoConvertida['Descricao'] = this.convertToTitleCase(this.type) + ' - ' + this.description;
-        }else{
-            transacaoConvertida['Descricao'] = (this.type === 'parcela' ? this.convertToTitleCase(this.type) + ' - ' : 'Conta ' ) + this.description;
+        } else {
+            transacaoConvertida['Descricao'] = (this.type === 'parcela' ? this.convertToTitleCase(this.type) + ' - ' : 'Conta ') + this.description;
         }
 
         if (!transacaoConvertida['Data']) delete transacaoConvertida['Data'];

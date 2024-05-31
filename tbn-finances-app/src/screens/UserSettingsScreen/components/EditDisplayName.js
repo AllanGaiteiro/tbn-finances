@@ -9,15 +9,7 @@ export const EditDisplayName = () => {
   const [newDisplayName, setNewDisplayName] = useState('');
   const [expandDisplayName, setDisplayName] = useState(false);
 
-  const handleChangeDisplayName = async () => {
-    try {
-      await userAuthService.changeDisplayName(newDisplayName);
-      Alert.alert("Nome alterado com sucesso!");
-    } catch (error) {
-      const errorMessage = handleFirebaseError(error); // Utiliza a função de tratamento de erros
-      Alert.alert("Erro ao alterar Nome", errorMessage);
-    }
-  };
+  const handleChangeDisplayName = () => userAuthService.changeDisplayName(newDisplayName);
 
   return (
     <TouchableOpacity onPress={() => setDisplayName(!expandDisplayName)}>

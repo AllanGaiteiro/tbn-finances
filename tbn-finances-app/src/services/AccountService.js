@@ -19,8 +19,6 @@ class AccountService {
     async updateAccount(account) {
         try {
             await this.repository.updateAccount(account);
-            // Exibir mensagem de sucesso para o usuário
-            Alert.alert('Conta atualizado com sucesso!');
         } catch (error) {
             // Exibir alerta para o usuário em caso de erro
             Alert.alert('Erro ao atualizar conta: ' + error);
@@ -30,8 +28,6 @@ class AccountService {
     async deleteAccount(accountId) {
         try {
             await this.repository.deleteAccount(accountId);
-            // Exibir mensagem de sucesso para o usuário
-            Alert.alert('Conta excluído com sucesso!');
         } catch (error) {
             // Exibir alerta para o usuário em caso de erro
             Alert.alert('Erro ao excluir conta: ' + error);
