@@ -19,8 +19,6 @@ export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible
     const [income, setIncome] = useState(incomeItem || new Income());
     const { account } = useAccount();
 
-     
-
     const formValidateAmount = (income) => !income.amount || isNaN(income.amount) || income.amount <= 0;
     const formValidateType = (income) => !income.type;
     const formValidateIsRecurrence = (income) => !income.isRecurrence && !income.transactionDate;
