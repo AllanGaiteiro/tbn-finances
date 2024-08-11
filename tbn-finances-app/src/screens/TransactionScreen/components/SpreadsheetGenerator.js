@@ -34,7 +34,7 @@ export const SpreadsheetGenerator = ({ transactions }) => {
     };
     return (
         <TouchableOpacity style={styles.button} onPress={generateSpreadsheet}>
-            <Ionicons name="md-document" size={24} color="white" />
+            <Ionicons name="document" size={24} color="white" />
             <Text style={styles.buttonText}>Gerar Planilha</Text>
         </TouchableOpacity>
     );
