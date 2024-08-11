@@ -50,7 +50,7 @@ export const SummaryCard = () => {
             </View>
             <View style={styles.row}>
                 <Text style={styles.label}>Valor Pago:</Text>
-                <Text style={[styles.totalValue, { color: getBorderColorByStatus('gasto') }]}>R$ {amountByMonth.expense?.toFixed(2)}</Text>
+                <Text style={[styles.totalValue, { color: getBorderColorByStatus('gasto') }]}>R$ {amountByMonth?.expense?.toFixed(2)}</Text>
             </View>
 
             <View style={styles.row}>

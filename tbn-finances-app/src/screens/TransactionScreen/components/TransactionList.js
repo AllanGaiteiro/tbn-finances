@@ -12,7 +12,7 @@ export function TransactionList({ selectedMonth, selectedYear }) {
     const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [filterText, setFilterText] = useState('');
-    const [sortBy, setSortBy] = useState('dueDate');
+    const [sortBy, setSortBy] = useState('transactionDate');
     const [sortOrder, setSortOrder] = useState('desc');
     const [typeTransaction, setTypeTransaction] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ export function TransactionList({ selectedMonth, selectedYear }) {
     const ParamsOrder = [
         { name: 'Valor', id: 'amount' },
         { name: 'Descrição', id: 'description' },
-        { name: 'Data', id: 'dueDate' },
+        { name: 'Data', id: 'transactionDate' },
         { name: 'Status', id: 'status' },
     ];
 

@@ -17,14 +17,14 @@ export function AddTransaction() {
                     <TouchableOpacity
                         style={[styles.button, styles.incomeButton]}
                         onPress={() => setIsFormIncomeVisible(!isFormIncomeVisible)}>
-                        <Text style={styles.buttonText}>{isFormIncomeVisible ? 'Fechar' : 'Adicionar Renda'}</Text>
+                        <Text style={styles.buttonText}>{isFormIncomeVisible ? 'Fechar' : 'Receita'}</Text>
                     </TouchableOpacity>
                 )}
                 {!isFormIncomeVisible && !isFormExpenseVisible && (
                     <TouchableOpacity
                         style={[styles.button, styles.expenseButton]}
                         onPress={() => setIsFormExpenseVisible(!isFormExpenseVisible)}>
-                        <Text style={styles.buttonText}>{isFormExpenseVisible ? 'Fechar' : 'Adicionar Despesa'}</Text>
+                        <Text style={styles.buttonText}>{isFormExpenseVisible ? 'Fechar' : 'Despesa'}</Text>
                     </TouchableOpacity>
                 )}
             </View>

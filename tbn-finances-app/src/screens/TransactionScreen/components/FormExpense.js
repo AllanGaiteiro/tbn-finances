@@ -50,7 +50,7 @@ export function FormExpense({ expense: expenseItem, isFormVisible, setIsFormVisi
                 if (expense.id && expense.type === 'mensal') {
                     await transactionRepository(account).expense.updateExpense(expense);
                 } else if (expense.id) {
-                    income.lastUpdateDate = new Date();
+                    expense.lastUpdateDate = new Date();
                     await transactionRepository(account).expense.updateExpense(expense);
                 } else {
                     expense.creationDate = new Date();

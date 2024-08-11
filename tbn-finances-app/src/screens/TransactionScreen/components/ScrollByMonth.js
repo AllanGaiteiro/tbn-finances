@@ -9,7 +9,7 @@ export const ScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
     const { account } = useAccount();
 
     useEffect(() => {
-        if(!account) return;
+        if (!account) return;
         const unsubscribe = transactionRepository(account).observeTransactionAmountByMonth(setTransactionMonths, setLoading);
 
         return () => unsubscribe();
@@ -42,13 +42,13 @@ export const ScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
                         <Text style={styles.month}>{transactionMonth.monthId}</Text>
 
                         <View style={styles.row}>
-                            <Text style={styles.label}>Recebido: </Text>
-                            <Text style={[styles.monthTotal, { color: getBorderColorByStatus('recebido') }]}>R$ {transactionMonth.incomeMonth.toFixed(2)}</Text>
+                            <Text style={styles.label}>Receita: </Text>
+                            <Text style={[styles.monthTotal, { color: getBorderColorByStatus('recebido') }]}>R$ {transactionMonth?.incomeMonth > 0 ? transactionMonth.incomeMonth?.toFixed(2) : '0,00'}</Text>
                         </View>
 
                         <View style={styles.row}>
-                            <Text style={styles.label}>Pago: </Text>
-                            <Text style={[styles.monthTotal, { color: getBorderColorByStatus('gasto') }]}>R$ {transactionMonth.expenseMonth.toFixed(2)}</Text>
+                            <Text style={styles.label}>Despesas: </Text>
+                            <Text style={[styles.monthTotal, { color: getBorderColorByStatus('gasto') }]}>R$ {transactionMonth?.expenseMonth > 0 ? transactionMonth.expenseMonth?.toFixed(2) : '0,00'}</Text>
                         </View>
 
                     </TouchableOpacity>

@@ -61,9 +61,9 @@ export class TransactionEntity {
     convertTransactionLanguageBR() {
         const transacaoConvertida = new TransacaoParaCSV(this.typeTransaction);
         transacaoConvertida['Entrada Ou Saida'] = this.typeTransaction === 'income' ? 'ENTRADA' : 'SAIDA';
-        transacaoConvertida['Data'] = this.transactionDate || null;
-        transacaoConvertida['Vencimento em'] = this.status !== 'recebido' && this.status !== 'pago' ? this.dueDate : null
-        transacaoConvertida['Valor'] = this.amount.toFixed(2);
+        transacaoConvertida['Data'] = this.formatDate(new Date(this.transactionDate)) || null;
+        transacaoConvertida['Vencimento em'] = this.status !== 'recebido' && this.status !== 'pago' ? this.formatDate(new Date(this.dueDate)) : null
+        transacaoConvertida['Valor'] = Number(this.amount)?.toFixed(2);
         transacaoConvertida['Status'] = this.status;
         transacaoConvertida['Parcelas'] = this.typeTransaction === 'expense' && this.type === 'parcela' ? `${this.currentInstallment}/${this.totalInstallments}` : null;
 
@@ -77,6 +77,11 @@ export class TransactionEntity {
         if (!transacaoConvertida['Vencimento em']) delete transacaoConvertida['Vencimento em'];
         if (!transacaoConvertida['Parcelas']) delete transacaoConvertida['Parcelas'];
         return transacaoConvertida;
+    }
+
+    formatDate(date) {
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return date.toLocaleDateString('pt-BR', options);
     }
 
     convertToTitleCase(text) {

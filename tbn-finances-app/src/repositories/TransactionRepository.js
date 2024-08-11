@@ -14,14 +14,15 @@ class TransactionRepository {
         this.collectionRef = collection(firestore, `accounts/${this.account}/transactions`);
         this.docRef = (id) => doc(firestore, `accounts/${this.account}/transactions`, id);
     }
+
     observeTransactionForSelectedMonth(setTransaction, setLoading, { selectedMonth, selectedYear, sortOrder, sortBy }) {
         const startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0); // 0 horas, 0 minutos, 0 segundos
         const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59); // 23 horas, 59 minutos, 59 segundos
 
         const q = query(this.collectionRef,
-            where("dueDate", ">=", startDate),
-            where("dueDate", "<=", endDate),
-            orderBy(sortBy || "dueDate", sortOrder || "desc"));
+            where("transactionDate", ">=", startDate),
+            where("transactionDate", "<=", endDate),
+            orderBy(sortBy || "transactionDate", sortOrder || "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const transactions = snapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
@@ -34,18 +35,19 @@ class TransactionRepository {
     }
 
     observeTransactionAmountByMonth(seExpenseMonths, setLoading) {
-        const q = query(this.collectionRef, orderBy("dueDate", "desc"));
+        const q = query(this.collectionRef, orderBy("transactionDate", "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const expenseMonths = {};
             const incomeMonths = {};
             const month = {};
             const year = {};
+            console.log(snapshot.docs.length)
             snapshot.docs.forEach(doc => {
                 const data = TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id });
-                const dueDate = data?.dueDate;
-                if (dueDate) {
-                    const monthYearKey = dueDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+                const transactionDate = data?.transactionDate;
+                if (transactionDate) {
+                    const monthYearKey = transactionDate.toLocaleString('default', { month: 'long', year: 'numeric' });
                     if (!expenseMonths[monthYearKey]) {
                         expenseMonths[monthYearKey] = 0;
                     }
@@ -54,21 +56,23 @@ class TransactionRepository {
                     }
 
                     if (data.typeTransaction === 'income') {
-                        incomeMonths[monthYearKey] += data.amount;
+                        incomeMonths[monthYearKey] += Number(data.amount);
                     } else {
-                        expenseMonths[monthYearKey] += data.amount;
+                        expenseMonths[monthYearKey] += Number(data.amount);
                     }
-                    month[monthYearKey] = dueDate.getMonth();
-                    year[monthYearKey] = dueDate.getFullYear();
+                    month[monthYearKey] = transactionDate.getMonth();
+                    year[monthYearKey] = transactionDate.getFullYear();
                 }
             });
+
+            console.log(month)
 
             const sortedMonths = Object.keys(expenseMonths).sort((a, b) => new Date(b) - new Date(a)).map(key => ({
                 monthId: key,
                 month: month[key],
                 year: year[key],
-                expenseMonth: expenseMonths[key],
-                incomeMonth: incomeMonths[key],
+                expenseMonth: expenseMonths[key] ?? 0,
+                incomeMonth: incomeMonths[key] ?? 0,
                 totalMonth: incomeMonths[key] - expenseMonths[key],
             }));
 
@@ -87,9 +91,9 @@ class TransactionRepository {
         const endDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
         const q = query(this.collectionRef,
-            where("dueDate", ">=", startDate),
-            where("dueDate", "<=", endDate),
-            orderBy("dueDate", "desc"));
+            where("transactionDate", ">=", startDate),
+            where("transactionDate", "<=", endDate),
+            orderBy("transactionDate", "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const amountByMonth = new AmountByMonth();
