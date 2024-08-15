@@ -28,17 +28,31 @@ export const ScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
         setSelectedYear(transactionMonth.year);
     }
 
+    const isFutureMonth = (transactionMonth) => {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+
+        if (transactionMonth.year > currentYear)  return true;
+        if (transactionMonth.year === currentYear && transactionMonth.month > currentMonth)  return true;
+        return false;
+    };
+
     if (loading) {
         return <ActivityIndicator size="large" />;
     }
 
     return (
-        <View style={styles.sliderContainer} >
+        <View style={[
+            styles.sliderContainer
+        ]} >
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {transactionMonths.map((transactionMonth, index) => (
                     <TouchableOpacity key={index}
                         onPress={() => handleMonthYear(transactionMonth)}
-                        style={styles.monthItem}>
+                        style={[
+                            styles.monthItem,
+                            isFutureMonth(transactionMonth) && styles.monthItemFuture]}>
                         <Text style={styles.month}>{transactionMonth.monthId}</Text>
 
                         <View style={styles.row}>
@@ -78,6 +92,9 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
         elevation: 4, // Necessário para sombra no Android
+    },
+    monthItemFuture: {
+        backgroundColor: '#DDE8F9', borderWidth: 1, borderColor: '#0B57D0'
     },
     month: {
         fontSize: 18,
