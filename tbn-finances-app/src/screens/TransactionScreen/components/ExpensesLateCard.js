@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { transactionRepository } from "../../../repositories/TransactionRepository";
 import { TransactionEntity } from "../../../entity/TransactionEntity";
 import { ActivityIndicator } from "react-native-paper";
 import { useAccount } from "../../../providers/AccountProvider";
 import { useTransactionFilters } from "../../../providers/TransactionFilterProvider";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export const ExpensesLateCard = () => {
     const { account } = useAccount();
@@ -44,8 +45,11 @@ export const ExpensesLateCard = () => {
         !loading && transactions.length > 0 ?
             <TouchableOpacity style={styles.container}
                 onPress={() => getExpenseLate()}>
-                <Text style={styles.title}>Contas Atrasadas</Text>
-                <Text style={styles.message}>Você possui {transactions.length} contas pendentes.</Text>
+                <View >
+                    <Text style={styles.title}>Contas Atrasadas</Text>
+                    <Text style={styles.message}>Você possui {transactions.length} contas pendentes.</Text>
+                </View>
+                <MaterialIcons name="error" size={35} color="#FF5733" />
             </TouchableOpacity> : null
     );
 };
@@ -57,7 +61,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         margin: 16,
         borderColor: '#FF5733',
-        borderWidth: 1
+        borderWidth: 1,
+        flexDirection: 'row', // Alinha os itens horizontalmente
+        alignItems: 'center', // Centraliza verticalmente
+        justifyContent: 'space-between', // Espaço entre os itens
     },
     title: {
         fontSize: 18,

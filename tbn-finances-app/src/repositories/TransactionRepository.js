@@ -20,10 +20,8 @@ class TransactionRepository {
     fromCollectionRef(collectionRef) {
         return new Observable(subscriber => {
             const unsubscribe = onSnapshot(collectionRef, snapshot => {
-                subscriber.next(snapshot); // Emita os dados do snapshot para o observador
+                subscriber.next(snapshot);
             });
-
-            // Retorne uma função de cancelamento para o unsubscribe
             return () => unsubscribe();
         });
     }
@@ -32,7 +30,7 @@ class TransactionRepository {
         if (filters.status === 'atrasada') {
             return this.observerTransactionLate(setTransaction, setLoading, filters);
         } else {
-            return this.observeTransactionForSelectedMonth(setTransaction, setLoading, filters);
+            return this.observeTransactionByMonth(setTransaction, setLoading, filters);
         }
     }
     observerTransactionLate(setTransaction, setLoading, filters = new FiltersEntity()) {
@@ -52,37 +50,40 @@ class TransactionRepository {
         return transactionSubscription
     }
 
-    observeTransactionForSelectedMonth(setTransaction, setLoading, { month, year, sortOrder, sortBy } = new FiltersEntity()) {
-        const startDate = new Date(year, month, 1, 0, 0, 0); // 0 horas, 0 minutos, 0 segundos
-        const endDate = new Date(year, month + 1, 0, 23, 59, 59); // 23 horas, 59 minutos, 59 segundos
+    observeTransactionByMonth(setValue, setLoading, type = 'select', { month, year, sortOrder, sortBy, text: searchText } = new FiltersEntity()) {
+        const startDate = new Date(year, month, 1, 0, 0, 0);
+        const endDate = new Date(year, month + 1, 0, 23, 59, 59);
 
-        const transactionQuery = query(this.collectionRef,
-            where("transactionDate", ">=", startDate),
-            where("transactionDate", "<=", endDate),
-            orderBy(sortBy || "transactionDate", sortOrder || "desc"));
+        let transactionQuery = this.queryTransactionDateByMonth(startDate, endDate, sortBy, sortOrder);
+        let unpaidTransactionsQuery = this.queryDueDateByMonth(startDate, endDate, sortBy, sortOrder);
 
-        const unpaidTransactionsQuery = query(this.collectionRef,
-            where("dueDate", ">=", startDate),
-            where("dueDate", "<=", endDate),
-            where("transactionDate", "==", null),
-
-            orderBy(sortBy || "dueDate", sortOrder || "desc"));
+        if (searchText) {
+            transactionQuery = this.querySeachDescription(transactionQuery, searchText);
+            unpaidTransactionsQuery = this.querySeachDescription(transactionQuery, searchText);
+        }
 
         const transactionObservable = this.fromCollectionRef(transactionQuery);
         const unpaidObservable = this.fromCollectionRef(unpaidTransactionsQuery);
 
-        // Combine as transações pagas e não pagas
         const combinedObservable = combineLatest([transactionObservable, unpaidObservable]);
 
         const combinedSubscription = combinedObservable.subscribe(([transactionSnapshot, unpaidSnapshot]) => {
-            const transactions = transactionSnapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
-            const unpaidTransactions = unpaidSnapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+            const transactions = [...transactionSnapshot.docs, ...unpaidSnapshot.docs].map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+            console.log(this.account, transactions.length);
 
-            const allTransactions = [...transactions, ...unpaidTransactions];
+            if (type === 'amount') {
+                const amountByMonth = new AmountByMonth();
+                amountByMonth.received = this.filterTransactionList(transactions, 'income', 'recebido',).reduce((acc, d) => acc + d.amount || 0, 0)
+                amountByMonth.notReceived = this.filterTransactionList(transactions, 'income', 'recebido', false)?.reduce((acc, d) => acc + d.amount || 0, 0)
+                amountByMonth.pay = this.filterTransactionList(transactions, 'expense', 'pago')?.reduce((acc, d) => acc + d.amount || 0, 0)
+                amountByMonth.notPay = this.filterTransactionList(transactions, 'expense', 'pago', false)?.reduce((acc, d) => acc + d.amount || 0, 0)
+                amountByMonth.total = amountByMonth.received - (amountByMonth.pay + amountByMonth.notPay);
+                setValue(amountByMonth);
+            } else {
+                setLoading(false);
+                setValue(transactions);
+            }
 
-            console.log(this.account, allTransactions.length);
-            setLoading(false);
-            setTransaction(allTransactions);
         });
 
         return combinedSubscription;
@@ -102,12 +103,8 @@ class TransactionRepository {
                 const date = data?.transactionDate || data.dueDate;
                 if (date) {
                     const monthYearKey = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-                    if (!expenseMonths[monthYearKey]) {
-                        expenseMonths[monthYearKey] = 0;
-                    }
-                    if (!incomeMonths[monthYearKey]) {
-                        incomeMonths[monthYearKey] = 0;
-                    }
+                    if (!expenseMonths[monthYearKey]) expenseMonths[monthYearKey] = 0;
+                    if (!incomeMonths[monthYearKey]) incomeMonths[monthYearKey] = 0;
 
                     if (data.typeTransaction === 'income') {
                         incomeMonths[monthYearKey] += Number(data.amount);
@@ -118,8 +115,6 @@ class TransactionRepository {
                     year[monthYearKey] = date.getFullYear();
                 }
             });
-
-            console.log(month)
 
             const sortedMonths = Object.keys(expenseMonths).sort((a, b) => year[a] > year[b] ? - 1 : (year[a] === year[b] && month[a] > month[b] ? -1 : 1)).map(key => ({
                 monthId: key,
@@ -140,28 +135,6 @@ class TransactionRepository {
         return unsubscribe;
     }
 
-    observeAmountByMonth(setTransaction) {
-        const startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const endDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-
-        const q = query(this.collectionRef,
-            where("transactionDate", ">=", startDate),
-            where("transactionDate", "<=", endDate),
-            orderBy("transactionDate", "desc"));
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const amountByMonth = new AmountByMonth();
-            const transactionList = snapshot.docs.map(d => TransactionEntity.fromFirebase(d.data()));
-            const filterTransactionList = (typeTransaction) => transactionList?.filter(t => t.typeTransaction === typeTransaction) ?? [];
-            amountByMonth.income = filterTransactionList('income')?.reduce((acc, d) => acc + d.amount || 0, 0)
-            amountByMonth.expense = filterTransactionList('expense')?.reduce((acc, d) => acc + d.amount || 0, 0)
-            amountByMonth.total = amountByMonth.income - amountByMonth.expense
-            setTransaction(amountByMonth);
-        });
-        return unsubscribe;
-    }
-
-    // Método para adicionar uma despesa recorrente
     async addRecurringExpense(expense, recurrencePeriod) {
         try {
             const batch = writeBatch(firestore);
@@ -190,6 +163,30 @@ class TransactionRepository {
             throw FirebaseErrorInterceptor.handle(error, "Error updating expense status: ");
 
         }
+    }
+
+    filterTransactionList = (transactions, typeTransaction, status, statusEq = true) => {
+        return transactions
+            .filter(t => t.typeTransaction === typeTransaction && (statusEq ? t.status === status : t.status !== status)) ?? []
+    }
+
+    querySeachDescription(transactionQuery, searchText) {
+        return query(transactionQuery, where('description', '>=', searchText), where('description', '<=', searchText + '\uf8ff'));
+    }
+
+    queryDueDateByMonth(startDate, endDate, sortBy, sortOrder) {
+        return query(this.collectionRef,
+            where("dueDate", ">=", startDate),
+            where("dueDate", "<=", endDate),
+            where("transactionDate", "==", null),
+            orderBy(sortBy || "dueDate", sortOrder || "desc"));
+    }
+
+    queryTransactionDateByMonth(startDate, endDate, sortBy, sortOrder) {
+        return query(this.collectionRef,
+            where("transactionDate", ">=", startDate),
+            where("transactionDate", "<=", endDate),
+            orderBy(sortBy || "transactionDate", sortOrder || "desc"));
     }
 
 }

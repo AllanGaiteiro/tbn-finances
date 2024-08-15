@@ -29,13 +29,15 @@ export function TransactionList() {
     useEffect(() => {
         // Aplicar filtros e ordenação quando as transações mudarem
         applyFilters();
-    }, [transactions, filterText, typeTransaction]);
+    }, [transactions, typeTransaction]);
 
     const applyFilters = () => {
         let filtered = transactions;
+        /*
         if (filterText.trim() !== '') {
             filtered = filtered.filter(transaction => transaction.description.toLowerCase().includes(filterText.trim().toLowerCase()));
         }
+            */
         if (typeTransaction) {
             filtered = filtered.filter(transaction => transaction.typeTransaction === typeTransaction);
         }
@@ -75,8 +77,8 @@ export function TransactionList() {
                 <TextInput
                     style={styles.input}
                     placeholder="Filtrar por descrição..."
-                    value={filterText}
-                    onChangeText={text => setFilterText(text)}
+                    value={filters.text}
+                    onChangeText={text => setFilters({ ...filters, text })}
                 />
                 <SpreadsheetGenerator transactions={filteredTransactions} />
                 <TypeTransactionSlider typeTransaction={typeTransaction} setTypeTransaction={setTypeTransaction} />

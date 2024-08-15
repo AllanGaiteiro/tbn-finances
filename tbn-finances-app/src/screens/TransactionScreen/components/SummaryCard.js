@@ -10,9 +10,9 @@ export const SummaryCard = () => {
     const { account } = useAccount();
 
     useEffect(() => {
-        if(!account) return;
+        if (!account) return;
         // Assinaturas retornarão funções para desinscrever
-        const unsubAmountByMonth = transactionRepository(account).observeAmountByMonth(setAmountByMonth);
+        const unsubAmountByMonth = transactionRepository(account).observeTransactionByMonth(setAmountByMonth, setLoading, 'amount');
 
         // Quando qualquer dado é atualizado, removemos o indicador de carregamento
         const unsubscribes = [unsubAmountByMonth];
@@ -25,13 +25,14 @@ export const SummaryCard = () => {
         checkLoading();
 
         return () => {
-            unsubAmountByMonth();
+            unsubAmountByMonth.unsubscribe();
         };
     }, [account]);
 
     const getBorderColorByStatus = (status) => {
         switch (status) {
             case 'recebida': return '#4CAF50'; // Verde para indicar que a despesa foi paga
+            case 'em_progresso': return '#2196F3'; // Azul
             case 'gasto': return '#F44336'; // Vermelho para indicar atraso no pagamento
             default: return '#757575'; // Cinza para estados não especificados
         }
@@ -43,19 +44,27 @@ export const SummaryCard = () => {
     }
     return (
         <View style={styles.card}>
-            <Text style={styles.cardTitle}>Resumo de Saidas do Mes</Text>
+            <Text style={styles.cardTitle}>Resumo do Mês</Text>
             <View style={styles.row}>
-                <Text style={styles.label}>Valor Recebido:</Text>
-                <Text style={[styles.totalValue, { color: getBorderColorByStatus('recebida') }]}>R$ {amountByMonth.income?.toFixed(2)}</Text>
+                <Text style={styles.label}>Recebido:</Text>
+                <Text style={[styles.primaryValue, { color: getBorderColorByStatus('recebida') }]}>{amountByMonth.received?.toFixed(2)}</Text>
+            </View>
+            <View style={styles.secondaryRow}>
+                <Text style={styles.secondaryLabel}>A Receber:</Text>
+                <Text style={[styles.secondaryValue, { color: getBorderColorByStatus('em_progresso') }]}>{amountByMonth.notReceived?.toFixed(2)}</Text>
             </View>
             <View style={styles.row}>
-                <Text style={styles.label}>Valor Pago:</Text>
-                <Text style={[styles.totalValue, { color: getBorderColorByStatus('gasto') }]}>R$ {amountByMonth?.expense?.toFixed(2)}</Text>
+                <Text style={styles.label}>Pago:</Text>
+                <Text style={[styles.primaryValue, { color: getBorderColorByStatus('gasto') }]}>{amountByMonth?.pay?.toFixed(2)}</Text>
+            </View>
+            <View style={styles.secondaryRow}>
+                <Text style={styles.secondaryLabel}>A Pagar:</Text>
+                <Text style={[styles.secondaryValue, { color: getBorderColorByStatus('gasto') }]}>{amountByMonth?.notPay?.toFixed(2)}</Text>
             </View>
 
             <View style={styles.row}>
                 <Text style={styles.label}>Balanço Geral:</Text>
-                <Text style={[styles.totalValue, { color: getBorderColorByStatus(amountByMonth.total > 0 ? 'recebida' : 'gasto') }]}>R$ {amountByMonth.total?.toFixed(2)}</Text>
+                <Text style={[styles.primaryValue, { color: getBorderColorByStatus(amountByMonth.total > 0 ? 'recebida' : 'gasto') }]}>{amountByMonth.total?.toFixed(2)}</Text>
             </View>
 
 
@@ -92,22 +101,40 @@ export const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 8,
+        justifyContent: 'center',
+    },
+    secondaryRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 2,
+        borderBottomWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.1)', // Preto transparente (ajuste a transparência conforme necessário)
+
     },
     label: {
+        fontSize: 26,
+        color: '#666',
+        textAlign: 'left',
+        width: '60%',
+    },
+    secondaryLabel: {
         fontSize: 16,
         color: '#666',
+        textAlign: 'left',
+        width: '60%'
     },
-    value: {
-        fontSize: 16,
+    primaryValue: {
+        fontSize: 26,
         fontWeight: 'bold',
         color: '#F44336',
+        width: '40%'
     },
-    totalValue: {
+    secondaryValue: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#F44336',
+        width: '40%'
+
     },
     pendingValue: {
         fontSize: 16,
