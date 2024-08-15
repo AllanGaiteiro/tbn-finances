@@ -5,6 +5,7 @@ import { incomeRepository } from './IncomeRepository';
 import { TransactionEntity } from '../entity/TransactionEntity';
 import { AmountByMonth } from '../entity/AmountByMonth';
 import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
+import { combineLatest, Observable } from 'rxjs';
 
 class TransactionRepository {
     constructor(account) {
@@ -15,23 +16,51 @@ class TransactionRepository {
         this.docRef = (id) => doc(firestore, `accounts/${this.account}/transactions`, id);
     }
 
+    fromCollectionRef(collectionRef) {
+        return new Observable(subscriber => {
+            const unsubscribe = onSnapshot(collectionRef, snapshot => {
+                subscriber.next(snapshot); // Emita os dados do snapshot para o observador
+            });
+    
+            // Retorne uma função de cancelamento para o unsubscribe
+            return () => unsubscribe();
+        });
+    }
+
     observeTransactionForSelectedMonth(setTransaction, setLoading, { selectedMonth, selectedYear, sortOrder, sortBy }) {
         const startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0); // 0 horas, 0 minutos, 0 segundos
         const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59); // 23 horas, 59 minutos, 59 segundos
 
-        const q = query(this.collectionRef,
+        const transactionQuery = query(this.collectionRef,
             where("transactionDate", ">=", startDate),
             where("transactionDate", "<=", endDate),
             orderBy(sortBy || "transactionDate", sortOrder || "desc"));
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const transactions = snapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
-            console.log(this.account, transactions.length)
+        const unpaidTransactionsQuery = query(this.collectionRef,
+            where("dueDate", ">=", startDate),
+            where("dueDate", "<=", endDate),
+            where("transactionDate", "==", null),
+
+            orderBy(sortBy || "dueDate", sortOrder || "desc"));
+
+        const transactionObservable = this.fromCollectionRef(transactionQuery);
+        const unpaidObservable = this.fromCollectionRef(unpaidTransactionsQuery);
+
+        // Combine as transações pagas e não pagas
+        const combinedObservable = combineLatest([transactionObservable, unpaidObservable]);
+
+        const combinedSubscription = combinedObservable.subscribe(([transactionSnapshot, unpaidSnapshot]) => {
+            const transactions = transactionSnapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+            const unpaidTransactions = unpaidSnapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+
+            const allTransactions = [...transactions, ...unpaidTransactions];
+
+            console.log(this.account, allTransactions.length);
             setLoading(false);
-            setTransaction(transactions);
+            setTransaction(allTransactions);
         });
 
-        return unsubscribe;
+        return combinedSubscription;
     }
 
     observeTransactionAmountByMonth(seExpenseMonths, setLoading) {

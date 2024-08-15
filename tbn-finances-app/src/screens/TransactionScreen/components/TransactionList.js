@@ -20,8 +20,8 @@ export function TransactionList({ selectedMonth, selectedYear }) {
 
     useEffect(() => {
         if(!account) return;
-        const unsubscribe = transactionRepository(account).observeTransactionForSelectedMonth(setTransactions,setLoading, { selectedMonth, selectedYear, sortOrder, sortBy });
-        return () => unsubscribe();
+        const combinedSubscription = transactionRepository(account).observeTransactionForSelectedMonth(setTransactions,setLoading, { selectedMonth, selectedYear, sortOrder, sortBy });
+        return () => combinedSubscription.unsubscribe();
     }, [selectedMonth, selectedYear, sortBy, sortOrder,account]);
 
     useEffect(() => {

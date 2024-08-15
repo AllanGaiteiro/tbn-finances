@@ -42,7 +42,7 @@ export function ExpenseItem({ expense }) {
                 onPress={() => setIsFormVisible(!isFormVisible)}>
                 <Text style={[styles.expenseAmount,dynamicAmountColorStyle]}>{expense.amount}</Text>
                 <Text style={styles.expenseType}>{expense.description}</Text>
-                <Text style={styles.expenseDate}>{formatDate(expense.dueDate)}</Text>
+                <Text style={styles.expenseDate}>{formatDate(expense.transactionDate || expense.dueDate)}</Text>
                 <Text style={[styles.expenseAmount, dynamicAmountColorStyle]}>{expense.status}</Text>
 
             </TouchableOpacity>}
