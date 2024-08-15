@@ -15,8 +15,8 @@ import { ExpenseInputPaymentDateWeb } from './input/ExpenseInputPaymentDateWeb';
 import { transactionRepository } from '../../../repositories/TransactionRepository';
 import { useAccount } from '../../../providers/AccountProvider';
 
-export function FormExpense({ expense: expenseItem, isFormVisible, setIsFormVisible }) {
-    const [expense, setExpense] = useState(expenseItem || new Expense());
+export function FormExpense({ expense: expenseItem = new Expense(), isFormVisible, setIsFormVisible }) {
+    const [expense, setExpense] = useState(expenseItem );
     const { account } = useAccount();
 
     const formValidateAmount = (expense) => !expense.amount || isNaN(expense.amount) || expense.amount <= 0;

@@ -6,6 +6,7 @@ import { TransactionEntity } from '../entity/TransactionEntity';
 import { AmountByMonth } from '../entity/AmountByMonth';
 import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
 import { combineLatest, Observable } from 'rxjs';
+import { FiltersEntity } from '../providers/FiltersEntity';
 
 class TransactionRepository {
     constructor(account) {
@@ -21,15 +22,39 @@ class TransactionRepository {
             const unsubscribe = onSnapshot(collectionRef, snapshot => {
                 subscriber.next(snapshot); // Emita os dados do snapshot para o observador
             });
-    
+
             // Retorne uma função de cancelamento para o unsubscribe
             return () => unsubscribe();
         });
     }
 
-    observeTransactionForSelectedMonth(setTransaction, setLoading, { selectedMonth, selectedYear, sortOrder, sortBy }) {
-        const startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0); // 0 horas, 0 minutos, 0 segundos
-        const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59); // 23 horas, 59 minutos, 59 segundos
+    observeTransactionList(setTransaction, setLoading, filters = new FiltersEntity()) {
+        if (filters.status === 'atrasada') {
+            return this.observerTransactionLate(setTransaction, setLoading, filters);
+        } else {
+            return this.observeTransactionForSelectedMonth(setTransaction, setLoading, filters);
+        }
+    }
+    observerTransactionLate(setTransaction, setLoading, filters = new FiltersEntity()) {
+        const unpaidTransactionsQuery = query(this.collectionRef,
+            where("typeTransaction", "==", 'expense'),
+            where("status", "==", filters.status),
+            orderBy(filters.sortBy || "lastUpdateDate", filters.sortOrder || "desc"));
+        const transactionObservable = this.fromCollectionRef(unpaidTransactionsQuery);
+
+        const transactionSubscription = transactionObservable.subscribe((transactionSnapshot) => {
+            const transactions = transactionSnapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+            console.log('observerTransactionLate', transactions.length);
+            setLoading(false);
+            setTransaction(transactions);
+        });
+
+        return transactionSubscription
+    }
+
+    observeTransactionForSelectedMonth(setTransaction, setLoading, { month, year, sortOrder, sortBy } = new FiltersEntity()) {
+        const startDate = new Date(year, month, 1, 0, 0, 0); // 0 horas, 0 minutos, 0 segundos
+        const endDate = new Date(year, month + 1, 0, 23, 59, 59); // 23 horas, 59 minutos, 59 segundos
 
         const transactionQuery = query(this.collectionRef,
             where("transactionDate", ">=", startDate),
@@ -64,7 +89,7 @@ class TransactionRepository {
     }
 
     observeTransactionAmountByMonth(seExpenseMonths, setLoading) {
-        const q = query(this.collectionRef, orderBy("transactionDate", "desc"));
+        const q = query(this.collectionRef, orderBy("lastUpdateDate", "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const expenseMonths = {};
@@ -74,9 +99,9 @@ class TransactionRepository {
             console.log(snapshot.docs.length)
             snapshot.docs.forEach(doc => {
                 const data = TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id });
-                const transactionDate = data?.transactionDate;
-                if (transactionDate) {
-                    const monthYearKey = transactionDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+                const date = data?.transactionDate || data.dueDate;
+                if (date) {
+                    const monthYearKey = date.toLocaleString('default', { month: 'long', year: 'numeric' });
                     if (!expenseMonths[monthYearKey]) {
                         expenseMonths[monthYearKey] = 0;
                     }
@@ -89,14 +114,14 @@ class TransactionRepository {
                     } else {
                         expenseMonths[monthYearKey] += Number(data.amount);
                     }
-                    month[monthYearKey] = transactionDate.getMonth();
-                    year[monthYearKey] = transactionDate.getFullYear();
+                    month[monthYearKey] = date.getMonth();
+                    year[monthYearKey] = date.getFullYear();
                 }
             });
 
             console.log(month)
 
-            const sortedMonths = Object.keys(expenseMonths).sort((a, b) => new Date(b) - new Date(a)).map(key => ({
+            const sortedMonths = Object.keys(expenseMonths).sort((a, b) => year[a] > year[b] ? - 1 : (year[a] === year[b] && month[a] > month[b] ? -1 : 1)).map(key => ({
                 monthId: key,
                 month: month[key],
                 year: year[key],

@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { transactionRepository } from '../../../repositories/TransactionRepository';
 import { useAccount } from '../../../providers/AccountProvider';
+import { useTransactionFilters } from '../../../providers/TransactionFilterProvider';
 
-export const ScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
+export const ScrollByMonth = () => {
     const [transactionMonths, setTransactionMonths] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { filters, setFilters } = useTransactionFilters(); // Obtendo os filtros do provedor
+
     const { account } = useAccount();
 
     useEffect(() => {
@@ -24,8 +27,12 @@ export const ScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
     };
 
     const handleMonthYear = (transactionMonth) => {
-        setSelectedMonth(transactionMonth.month);
-        setSelectedYear(transactionMonth.year);
+        setFilters({
+            ...filters,
+            status: null,
+            month: transactionMonth.month,
+            year: transactionMonth.year,
+        });
     }
 
     const isFutureMonth = (transactionMonth) => {
@@ -33,8 +40,8 @@ export const ScrollByMonth = ({ setSelectedMonth, setSelectedYear }) => {
         const currentYear = currentDate.getFullYear();
         const currentMonth = currentDate.getMonth();
 
-        if (transactionMonth.year > currentYear)  return true;
-        if (transactionMonth.year === currentYear && transactionMonth.month > currentMonth)  return true;
+        if (transactionMonth.year > currentYear) return true;
+        if (transactionMonth.year === currentYear && transactionMonth.month > currentMonth) return true;
         return false;
     };
 

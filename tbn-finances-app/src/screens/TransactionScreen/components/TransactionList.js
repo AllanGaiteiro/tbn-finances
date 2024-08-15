@@ -7,22 +7,24 @@ import { SortButton } from './button/SortButton';
 import { SpreadsheetGenerator } from './SpreadsheetGenerator';
 import { TypeTransactionSlider } from './TypeTransactionSlider';
 import { useAccount } from '../../../providers/AccountProvider';
-export function TransactionList({ selectedMonth, selectedYear }) {
+import { useTransactionFilters } from '../../../providers/TransactionFilterProvider';
+
+export function TransactionList() {
     const { account } = useAccount();
+    const { filters, setFilters } = useTransactionFilters(); // Obtendo os filtros do provedor
+
     const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [filterText, setFilterText] = useState('');
-    const [sortBy, setSortBy] = useState('transactionDate');
-    const [sortOrder, setSortOrder] = useState('desc');
     const [typeTransaction, setTypeTransaction] = useState(null);
     const [loading, setLoading] = useState(true);
     const screenHeight = Dimensions.get('window').height;
 
     useEffect(() => {
-        if(!account) return;
-        const combinedSubscription = transactionRepository(account).observeTransactionForSelectedMonth(setTransactions,setLoading, { selectedMonth, selectedYear, sortOrder, sortBy });
+        if (!account) return;
+        const combinedSubscription = transactionRepository(account).observeTransactionList(setTransactions, setLoading, filters);
         return () => combinedSubscription.unsubscribe();
-    }, [selectedMonth, selectedYear, sortBy, sortOrder,account]);
+    }, [filters, account]);
 
     useEffect(() => {
         // Aplicar filtros e ordenação quando as transações mudarem
@@ -41,17 +43,22 @@ export function TransactionList({ selectedMonth, selectedYear }) {
     };
 
     const handleSortBy = (selectedSortBy) => {
-        if (selectedSortBy === sortBy) {
+        if (selectedSortBy === filters.sortBy) {
             toggleSortOrder();
         } else {
-            setSortBy(selectedSortBy);
-            setSortOrder('asc');
+            setFilters({
+                ...filters,
+                sortBy: selectedSortBy,
+                sortOrder: 'asc',
+            });
         }
     };
 
     const toggleSortOrder = () => {
-        const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-        setSortOrder(newSortOrder);
+        setFilters({
+            ...filters,
+            sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc',
+        });
         applyFilters();
     };
 
@@ -79,8 +86,8 @@ export function TransactionList({ selectedMonth, selectedYear }) {
                             key={p.id}
                             label={p.name}
                             onPress={() => handleSortBy(p.id)}
-                            active={sortBy === p.id}
-                            sortOrder={sortOrder}
+                            active={filters.sortBy === p.id}
+                            sortOrder={filters.sortOrder}
                         />
                     )}
                 </View>

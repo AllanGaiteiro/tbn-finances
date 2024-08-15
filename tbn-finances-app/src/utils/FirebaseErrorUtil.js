@@ -18,7 +18,7 @@ export class FirebaseErrorInterceptor {
       default:
         errorMessage = error.message;
     }
-
+    console.error(error)
     console.error(text || "Erro Firebase:", errorMessage);
     return errorMessage;
   }

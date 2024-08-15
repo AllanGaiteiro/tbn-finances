@@ -2,11 +2,25 @@
 import { collection, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../settings/firebaseConfig';
 import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
+import { Expense } from '../entity/Expense';
 
 export class ExpenseRepository {
     constructor(account) {
         this.account = account;
         this.collectionRef = collection(firestore, `accounts/${this.account}/transactions`);
+    }
+
+    async addExpense(expense) {
+        try {
+            const docRef = await addDoc(this.collectionRef, {
+                ...expense,
+                transactionDate: expense.transactionDate || new Date(), // Garantindo que a data de pagamento seja definida
+                creationDate: new Date() // Data de criação do registro
+            });
+            console.log("Expense successfully added with ID: ", docRef.id);
+        } catch (error) {
+            throw FirebaseErrorInterceptor.handle(error, "Error adding expense: " + expense.id + " - ");
+        }
     }
 
     async addExpense(expense) {

@@ -48,7 +48,6 @@ export class TransactionEntity {
             transactionDate: this.transactionDate,
             dueDate: this.dueDate,
             description: this.description,
-            isRecurrent: this.isRecurrent,
             totalInstallments: this.totalInstallments,
             currentInstallment: this.currentInstallment,
             creationDate: this.creationDate,
