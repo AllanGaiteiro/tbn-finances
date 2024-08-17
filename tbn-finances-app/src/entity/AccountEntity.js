@@ -2,6 +2,7 @@ export class AccountEntity {
     constructor(type = 'organization') {
         this.id = null;
         this.type = type; // 'organization' ou 'event'
+        this.cnpj = '';
         this.name = '';
         this.description = '';
         this.adminId = ''; // ID do usuário que é administrador do conta
@@ -14,6 +15,7 @@ export class AccountEntity {
     static fromFirebase(data) {
         const account = new AccountEntity(data.type);
         account.id = data.id;
+        account.cnpj = data.cnpj;
         account.name = data.name;
         account.description = data.description;
         account.adminId = data.adminId;
@@ -28,6 +30,7 @@ export class AccountEntity {
         return {
             id: this.id,
             type: this.type,
+            cnpj: this.cnpj,
             name: this.name,
             description: this.description,
             adminId: this.adminId,
@@ -36,5 +39,21 @@ export class AccountEntity {
             lastUpdateDate: this.lastUpdateDate,
             isSelected: this.isSelected,
         };
+    }
+
+    static publicCNPJWSForAccountEntity(accountData, res) {
+        return {
+            ...accountData,
+            name: res['razao_social'],
+            description: res['estabelecimento']['atividade_principal']['descricao'],
+            adrees: {
+                logradouro: res['estabelecimento']['logradouro'],
+                numero: res['estabelecimento']['numero'],
+                complemento: res['estabelecimento']['complemento'],
+                bairro: res['estabelecimento']['bairro'],
+                cep: res['estabelecimento']['cep'],
+            }
+
+        }
     }
 }

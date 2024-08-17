@@ -55,6 +55,39 @@ export const SliderAccountIsSelected = ({ accountData }) => {
   );
 };
 
+const typeOptions = [
+  { label: 'Organização', value: 'organization', active: false, color: 'blue' },
+  { label: 'Evento', value: 'event', active: false, color: 'blue' },
+];
+
+export const SliderTypeSelected = ({ accountData, setAccountData }) => {
+  const getBackgroundColor = (value) => {
+    const statusOption = statusOptions.find(option => option.value === value);
+    return statusOption ? statusOption.color : '#ccc'; // cor padrão se não encontrado
+  };
+
+  return (
+    <View style={styles.sliderContainer}>
+      {typeOptions.map((option) => (
+        <TouchableOpacity
+          key={option.value}
+          style={[
+            styles.sliderOption,
+            accountData.type === option.value ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
+          ]}
+          onPress={() => setAccountData({ ...accountData, type: option.value })}
+        >
+          <Text style={[
+            styles.sliderOptionText,
+            accountData.type === option.value ? styles.activeText : styles.inactiveText
+          ]}>{option.label}</Text>
+        </TouchableOpacity>
+      ))
+      }
+    </View >
+  );
+};
+
 const styles = StyleSheet.create({
   sliderContainer: {
     flexDirection: 'row',

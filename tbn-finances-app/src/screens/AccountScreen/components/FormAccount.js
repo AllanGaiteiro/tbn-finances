@@ -12,7 +12,8 @@ import { DeleteButton } from './button/DeleteButton';
 import { CancelButton } from './button/CancelButton';
 import { EditButton } from './button/EditButton';
 import { AccountEntity } from '../../../entity/AccountEntity';
-import { SliderAccountIsSelected } from './SliderAccountIsSelected';
+import { SliderAccountIsSelected, SliderTypeSelected } from './SliderAccountIsSelected';
+import { InputAccountCNPJ } from './input/InputAccountCNPJ';
 
 export const FormAccount = ({ accountData: item, expand: expandInit }) => {
     const { user } = useUser();
@@ -62,9 +63,22 @@ export const FormAccount = ({ accountData: item, expand: expandInit }) => {
                 <Card.Title style={accountStyles.cardTitle} title={!accountData?.id ? 'Criar Conta' : accountData.name} />
                 {expand && (
                     <Card.Content style={accountStyles.container}>
-                        <SliderAccountIsSelected
+                        {accountData?.id && <SliderAccountIsSelected
                             accountData={accountData}
-                        />
+                        />}
+                        <SliderTypeSelected
+                              accountData={accountData}
+                              setAccountData={setAccountData} />
+                        <View>
+
+                            {accountData.type === 'organization' && (
+                                <InputAccountCNPJ
+                                    accountData={accountData}
+                                    setAccountData={setAccountData}
+                                    editable={editable()}
+                                />
+                            )}
+                        </View>
                         <InputAccountName
                             accountData={accountData}
                             setAccountData={setAccountData}
@@ -105,6 +119,3 @@ export const FormAccount = ({ accountData: item, expand: expandInit }) => {
         </TouchableOpacity>
     );
 };
-
-
-

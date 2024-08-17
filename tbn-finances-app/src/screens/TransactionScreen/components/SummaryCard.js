@@ -63,7 +63,7 @@ export const SummaryCard = () => {
             </View>
 
             <View style={styles.row}>
-                <Text style={styles.label}>Balanço Geral:</Text>
+                <Text style={styles.label}>Resultado:</Text>
                 <Text style={[styles.primaryValue, { color: getBorderColorByStatus(amountByMonth.total > 0 ? 'recebida' : 'gasto') }]}>{amountByMonth.total?.toFixed(2)}</Text>
             </View>
 
