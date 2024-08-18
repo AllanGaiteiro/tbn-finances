@@ -9,7 +9,7 @@ const statusOptions = [
   { label: 'Selectionado', value: true, active: false, color: 'blue' },
 ];
 
-export const SliderAccountIsSelected = ({ accountData }) => {
+export const SliderAccountIsSelected = ({ accountData, disabled = false, stylesWidth = { width: 'auto' }, stylesPaddingHorizontal = { paddingHorizontal: 40 } }) => {
   const { user, } = useUser();
   const { account, updateAccount } = useAccount()
   const [accountSelected, setAccountSelected] = useState(accountData?.id && account === accountData?.id);
@@ -32,12 +32,14 @@ export const SliderAccountIsSelected = ({ accountData }) => {
   };
 
   return (
-    <View style={styles.sliderContainer}>
+    <View style={[styles.sliderContainer, stylesWidth]}>
       {statusOptions.map((option) => (
         <TouchableOpacity
           key={option.value}
+          disabled={disabled}
           style={[
             styles.sliderOption,
+            stylesPaddingHorizontal,
             accountSelected ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
           ]}
           onPress={() => {
@@ -47,39 +49,6 @@ export const SliderAccountIsSelected = ({ accountData }) => {
           <Text style={[
             styles.sliderOptionText,
             accountSelected ? styles.activeText : styles.inactiveText
-          ]}>{option.label}</Text>
-        </TouchableOpacity>
-      ))
-      }
-    </View >
-  );
-};
-
-const typeOptions = [
-  { label: 'Organização', value: 'organization', active: false, color: 'blue' },
-  { label: 'Evento', value: 'event', active: false, color: 'blue' },
-];
-
-export const SliderTypeSelected = ({ accountData, setAccountData }) => {
-  const getBackgroundColor = (value) => {
-    const statusOption = statusOptions.find(option => option.value === value);
-    return statusOption ? statusOption.color : '#ccc'; // cor padrão se não encontrado
-  };
-
-  return (
-    <View style={styles.sliderContainer}>
-      {typeOptions.map((option) => (
-        <TouchableOpacity
-          key={option.value}
-          style={[
-            styles.sliderOption,
-            accountData.type === option.value ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
-          ]}
-          onPress={() => setAccountData({ ...accountData, type: option.value })}
-        >
-          <Text style={[
-            styles.sliderOptionText,
-            accountData.type === option.value ? styles.activeText : styles.inactiveText
           ]}>{option.label}</Text>
         </TouchableOpacity>
       ))

@@ -1,121 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, Button, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { Card } from 'react-native-paper';
 import { accountStyles } from '../accountStyles';
-import { InputAccountMembers } from './input/InputAccountMembers';
-import { InputAccountAdminId } from './input/InputAccountAdminId';
-import { InputAccountDescription } from './input/InputAccountDescription';
-import { InputAccountName } from './input/InputAccountName';
-import { useUser } from '../../../providers/UserProvider';
-import { accountService } from '../../../services/AccountService';
-import { DeleteButton } from './button/DeleteButton';
-import { CancelButton } from './button/CancelButton';
-import { EditButton } from './button/EditButton';
+import { FormAccountExpanded } from './FormAccountExpanded';
+import { FormAccountHeader } from './FormAccountHeader';
 import { AccountEntity } from '../../../entity/AccountEntity';
-import { SliderAccountIsSelected, SliderTypeSelected } from './SliderAccountIsSelected';
-import { InputAccountCNPJ } from './input/InputAccountCNPJ';
 
-export const FormAccount = ({ accountData: item, expand: expandInit }) => {
-    const { user } = useUser();
-    const [accountData, setAccountData] = useState(item);
+export const FormAccount = ({ accountData, expand: expandInit }) => {
     const [expand, setExpand] = useState(expandInit || false);
-
-    const handleSaveAccount = async () => {
-        try {
-            const today = new Date()
-
-            if (accountData?.id) {
-                await accountService.updateAccount({
-                    id: accountData.id,
-                    ...accountData,
-                    lastUpdateDate: today
-                });
-            } else {
-                await accountService.addAccount({
-                    ...accountData,
-                    creationDate: today,
-                    lastUpdateDate: today
-                });
-                const newAccount = new AccountEntity();
-                newAccount.adminId = user.uid;
-                newAccount.members = [user.uid];
-                setAccountData(newAccount);
-            }
-
-        } catch (error) {
-            console.error('Erro ao salvar conta:', error);
-        }
-    };
-
-    const handleDeleteAccount = async (accountId) => {
-        try {
-            await accountService.deleteAccount(accountId);
-        } catch (error) {
-            console.error('Erro ao excluir conta:', error);
-        }
-    };
-
-    const editable = () => accountData.adminId === user.uid || !accountData?.id;
 
     return (
         <TouchableOpacity onPress={() => setExpand(!expand)}>
             <Card style={accountStyles.card}>
-                <Card.Title style={accountStyles.cardTitle} title={!accountData?.id ? 'Criar Conta' : accountData.name} />
-                {expand && (
-                    <Card.Content style={accountStyles.container}>
-                        {accountData?.id && <SliderAccountIsSelected
-                            accountData={accountData}
-                        />}
-                        <SliderTypeSelected
-                              accountData={accountData}
-                              setAccountData={setAccountData} />
-                        <View>
-
-                            {accountData.type === 'organization' && (
-                                <InputAccountCNPJ
-                                    accountData={accountData}
-                                    setAccountData={setAccountData}
-                                    editable={editable()}
-                                />
-                            )}
-                        </View>
-                        <InputAccountName
-                            accountData={accountData}
-                            setAccountData={setAccountData}
-                            editable={editable()} />
-                        <InputAccountDescription
-                            accountData={accountData}
-                            setAccountData={setAccountData}
-                            editable={editable()} />
-
-                        <InputAccountAdminId
-                            accountData={accountData}
-                            setAccountData={setAccountData}
-                            editable={editable()} />
-
-                        <InputAccountMembers
-                            accountData={accountData}
-                            setAccountData={setAccountData}
-                            editable={editable()} />
-                        {!accountData?.id && (
-                            <Button
-                                title="Salvar"
-                                mode="contained"
-                                onPress={handleSaveAccount}
-                                style={[accountStyles.button, accountStyles.saveButton]}
-                            />
-                        )}
-                        {accountData?.id && (
-                            <View style={accountStyles.editButtonContainer}>
-
-                                <EditButton onPress={handleSaveAccount} />
-                                <CancelButton onPress={() => setExpand(false)} />
-                                <DeleteButton onPress={() => handleDeleteAccount(accountData.id)} />
-                            </View>
-                        )}
-                    </Card.Content>
-                )}
+                <FormAccountHeader accountData={accountData} expand={expand} />
+                {expand && <FormAccountExpanded accountData={accountData} setExpand={setExpand} />}
             </Card>
         </TouchableOpacity>
     );
 };
+
