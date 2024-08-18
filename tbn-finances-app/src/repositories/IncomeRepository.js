@@ -2,6 +2,7 @@
 import { collection, query, writeBatch, onSnapshot, where, orderBy, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../settings/firebaseConfig';
 import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
+import { TypeOptionEntity } from '../entity/TypeOptionEntity';
 
 class IncomeRepository {
     constructor(account) {
@@ -13,10 +14,11 @@ class IncomeRepository {
     // Adicionar um novo income
     async addIncome(income) {
         try {
-            const docRef = await addDoc(this.collectionRef, income);
+            const incomeData = { ...income, type: TypeOptionEntity.fromFirebase(income.type).toFirestore() }
+            const docRef = await addDoc(this.collectionRef, incomeData);
             console.log("Income successfully added with ID: ", docRef.id);
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Error adding income: ");            
+            throw FirebaseErrorInterceptor.handle(error, "Error adding income: ");
         }
     }
 
@@ -27,7 +29,7 @@ class IncomeRepository {
             await updateDoc(incomeRef, income);
             console.log("Income successfully updated - ", income.id);
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Error updating income: " + income.id + " - ");            
+            throw FirebaseErrorInterceptor.handle(error, "Error updating income: " + income.id + " - ");
         }
     }
 
@@ -59,7 +61,7 @@ class IncomeRepository {
             await batch.commit();
             console.log("Recurrence update and new income creation successful.");
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Error handling recurrence update: ");            
+            throw FirebaseErrorInterceptor.handle(error, "Error handling recurrence update: ");
         }
     }
     async cancelIncome(income) {
@@ -72,7 +74,7 @@ class IncomeRepository {
             await updateDoc(incomeRef, cancelIncome);
             console.log("Income successfully canceled - ", cancelIncome.id);
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Error canceled income: " + income.id + " - ");            
+            throw FirebaseErrorInterceptor.handle(error, "Error canceled income: " + income.id + " - ");
 
         }
     }
@@ -83,7 +85,7 @@ class IncomeRepository {
             await deleteDoc(doc(this.collectionRef, incomeId));
             console.log("Income successfully deleted");
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Error deleting income: ");            
+            throw FirebaseErrorInterceptor.handle(error, "Error deleting income: ");
         }
     }
 

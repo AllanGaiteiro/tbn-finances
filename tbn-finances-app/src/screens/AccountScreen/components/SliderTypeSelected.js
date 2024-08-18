@@ -1,28 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-
-
-const typeOptions = [
-    { label: 'Organização', value: 'organization', active: false, color: 'blue' },
-    { label: 'Igreja', value: 'igreja', active: false, color: 'blue' },
-    { label: 'Pessoal', value: 'pessoal', active: false, color: 'blue' },
-    { label: 'Evento', value: 'event', active: false, color: 'blue' },
-];
+import { accountTypeRepository } from '../../../repositories/AccountTypeRepository';
+import { AccountTypeEntity } from '../../../entity/AccountTypeEntity';
 
 export const SliderTypeSelected = ({ accountData, setAccountData }) => {
+    const [accountTypes, setAccountTypes] = useState(new AccountTypeEntity());
+    const [loadingAccountType, setLoadingAccountType] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = accountTypeRepository.observeAccountType(setAccountTypes, setLoadingAccountType)
+        return () => unsubscribe();
+    }, [accountData]);
+
+    const handlerSetAccount = (option) => {
+        console.log(option)
+        setAccountData({ ...accountData, type: option.value, incomesTypeIds: option.incomeTypes })
+    }
+
     const getBackgroundColor = (value) => {
-        const statusOption = typeOptions.find(option => option.value === value);
-        return statusOption ? statusOption.color : '#ccc'; // cor padrão se não encontrado
+        const statusOption = accountTypes.find(option => option.value === value);
+        return statusOption ? 'blue' : '#ccc'; // cor padrão se não encontrado
     };
 
     const typeSelected = (option) => accountData?.type === option.value;
     const typeView = (option) => accountData?.id && typeSelected(option) || !accountData.id;
 
+    if (loadingAccountType) {
+        return
+    }
+
     return (
         <View>
             {!accountData.id ? <Text style={styles.text}>Selecione o Tipo:</Text> : null}
             <View style={styles.sliderContainer}>
-                {typeOptions.map((option) =>
+                {accountTypes.map((option) =>
                     typeView(option) ?
                         <TouchableOpacity
                             key={option.value}
@@ -30,7 +41,7 @@ export const SliderTypeSelected = ({ accountData, setAccountData }) => {
                                 styles.sliderOption,
                                 typeSelected(option) ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
                             ]}
-                            onPress={() => setAccountData({ ...accountData, type: option.value })}
+                            onPress={() => handlerSetAccount(option)}
                         >
                             <Text style={[
                                 styles.sliderOptionText,
@@ -50,6 +61,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         paddingVertical: 10,
+        flexWrap: 'wrap',
     },
     sliderOption: {
         padding: 10,

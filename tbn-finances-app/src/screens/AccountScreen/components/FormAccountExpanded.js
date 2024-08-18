@@ -15,8 +15,9 @@ import { AccountEntity } from '../../../entity/AccountEntity';
 import { SliderAccountIsSelected } from './SliderAccountIsSelected';
 import { InputAccountCNPJ } from './input/InputAccountCNPJ';
 import { SliderTypeSelected } from './SliderTypeSelected';
+import { accountTypeRepository } from '../../../repositories/AccountTypeRepository';
 
-export function FormAccountExpanded({ accountData: item, setExpand }) {
+export function FormAccountExpanded({  accountData: item, setExpand }) {
     const { user } = useUser();
     const [formAccountData, setFormAccountData] = useState({ ...item });
 

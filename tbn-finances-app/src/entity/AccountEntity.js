@@ -1,7 +1,7 @@
 export class AccountEntity {
-    constructor(type = 'organization') {
+    constructor() {
         this.id = null;
-        this.type = type; // 'organization' ou 'event'
+        this.type = ''; // 'organization' ou 'event'
         this.cnpj = '';
         this.name = '';
         this.description = '';

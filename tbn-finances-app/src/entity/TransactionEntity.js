@@ -1,4 +1,5 @@
 import { TransacaoParaCSV } from "./TransacaoParaCSV";
+import { TypeOptionEntity } from "./TypeOptionEntity";
 
 export class TransactionEntity {
     constructor(typeTransaction = null) {
@@ -24,7 +25,7 @@ export class TransactionEntity {
         // Atribuir valores a partir de `data`, incluindo a conversão de datas
         expense.id = data.id;
         expense.typeTransaction = data.typeTransaction;
-        expense.type = data.type || null;
+        expense.type = data.typeTransaction === 'expense' ? data.type : TypeOptionEntity.fromFirebase(data.type);
         expense.status = data.status;
         expense.amount = data.amount;
         expense.transactionDate = data.transactionDate?.toDate() || null;
@@ -40,9 +41,9 @@ export class TransactionEntity {
     }
 
     toFirestore() {
-        return {
+        const data = {
             typeTransaction: this.typeTransaction,
-            type: this.type || null,
+            type: this.typeTransaction === 'expense' ? this.type : this.type.toFirestore(),
             status: this.status,
             amount: this.amount,
             transactionDate: this.transactionDate,
@@ -55,6 +56,8 @@ export class TransactionEntity {
             lastRecurrenceDate: this.lastRecurrenceDate,
             isRecurrence: this.isRecurrence
         };
+        console.log(data)
+        return data
     }
 
     convertTransactionLanguageBR() {

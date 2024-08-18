@@ -71,7 +71,7 @@ export function FormIncome({ income: incomeItem, setIsFormVisible }) {
 
 
     return <View style={styles.form}>
-        <Text style={styles.title}>{income.id ? 'Detalhes da ' : 'Adicionar'} Oferta</Text>
+        <Text style={styles.title}>{income.id ? 'Detalhes ' + income.description : 'Adicionar Renda'}</Text>
 
         <IncomeInputType accountData={account} income={income} setIncome={setIncome} />
 

@@ -1,6 +1,6 @@
 import { collection, addDoc, doc, updateDoc, deleteDoc, query, where, getDocs, onSnapshot, limit, getDoc } from 'firebase/firestore';
 import { firestore } from '../settings/firebaseConfig'; // Importe sua configuração do Firebase aqui
-import { AccountEntity } from '../entity/AccountEntity';
+import { AccountTypeEntity } from "../entity/AccountTypeEntity";
 import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
 
 export class AccountTypeRepository {
@@ -10,78 +10,46 @@ export class AccountTypeRepository {
 
     }
 
-    observeAccountTypeById(id, setAccount, setLoading) {
-        const unsubscribe = onSnapshot(this.docRef(id), (snapshot) => {
-            const account = AccountEntity.fromFirebase({ ...snapshot.data(), id: snapshot.id }) || [];
-            setAccount(account);
+    observeAccountType(setAccountType, setLoading) {
+        const unsubscribe = onSnapshot(this.collectionRef, (snapshot) => {
+            const account = snapshot.docs.map(doc => AccountTypeEntity.fromFirebase({ ...doc.data(), id: doc.id })) || [];
+            setAccountType(account);
             setLoading(false);
         });
         return unsubscribe;
     }
 
-    async getAccountTypeById(id) {
-        const snapshot = await getDoc(this.docRef(id));
-        const account = AccountEntity.fromFirebase({ ...snapshot.data(), id: snapshot.id }) || [];
+    async getAccountType() {
+        const snapshot = await getDoc(this.collectionRef);
+        const account = snapshot.docs.map(doc => AccountTypeEntity.fromFirebase({ ...doc.data(), id: doc.id })) || [];
         return account;
     }
 
-
-    getAccountsTypeByUserId(user, setAccounts, setLoading) {
-        const q = query(this.collectionRef, where('members', 'array-contains', user.uid));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const accounts = snapshot.docs.map(doc => AccountEntity.fromFirebase({ ...doc.data(), id: doc.id })) || [];
-            setLoading(false);
-            setAccounts(accounts);
-        });
-
-        return unsubscribe;
-    }
-    observeAccountsTypeByUserIdAndSelected(user, setAccount, setLoading) {
-        const q = query(this.collectionRef, where('members', 'array-contains', user.uid), where('isSelected', '==', true), limit(1));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            if (snapshot.docs.length) {
-                const [doc] = snapshot.docs;
-
-                console.log('Conta Selected', doc.id)
-                const account = AccountEntity.fromFirebase({ id: doc.id, ...doc.data() });
-                setAccount(account);
-
-            } else {
-                setAccount(null);
-            }
-
-            setLoading(false);
-
-        });
-
-        return unsubscribe;
-    }
-
-    async addAccountType(account) {
+    async addAccountType(accountType) {
         try {
-            const docRef = await addDoc(this.collectionRef, account);
-            console.log("Conta adicionado com sucesso com ID: ", docRef.id);
+            const docRef = await addDoc(this.collectionRef, accountType);
+            console.log("tipo de Conta adicionado com sucesso com ID: ", docRef.id);
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Erro ao atualizar conta: " + account.id + " - ");
+            throw FirebaseErrorInterceptor.handle(error, "Erro ao atualizar tipo de conta: " + accountType.id + " - ");
         }
     }
 
-    async updateAccountType(account) {
+    async updateAccountType(accountType) {
         try {
-            const accountRef = doc(this.collectionRef, account.id);
-            await updateDoc(accountRef, account);
-            console.log("Conta atualizado com sucesso - ", account.id);
+            const accountRef = doc(this.collectionRef, accountType.id);
+            await updateDoc(accountRef, accountType);
+            console.log("tipo de Conta atualizado com sucesso - ", accountType.id);
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Erro ao atualizar conta: " + account.id + " - ");
+            throw FirebaseErrorInterceptor.handle(error, "Erro ao atualizar tipo de conta: " + accountType.id + " - ");
         }
     }
 
-    async deleteAccountType(accountId) {
+    async deleteAccountType(accountTypeId) {
         try {
-            await deleteDoc(doc(this.collectionRef, accountId));
-            console.log("Conta excluído com sucesso");
+            await deleteDoc(doc(this.collectionRef, accountTypeId));
+            console.log("tipo de Conta excluído com sucesso");
         } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Erro ao excluir conta: ");
+            throw FirebaseErrorInterceptor.handle(error, "Erro ao excluir tipo de conta: ");
         }
     }
 }
