@@ -1,6 +1,7 @@
 import { TransactionEntity } from "./TransactionEntity";
 import { TypeOptionEntity } from "./TypeOptionEntity";
 
+
 export class IncomeEntity extends TransactionEntity {
     constructor(name) {
         super('income');

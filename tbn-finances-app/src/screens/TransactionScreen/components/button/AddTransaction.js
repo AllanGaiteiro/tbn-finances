@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { Income } from '../../../../entity/Income';
 import { Expense } from '../../../../entity/Expense';
 import { FormExpense } from '../FormExpense';
 import { FormIncome } from '../FormIncome';

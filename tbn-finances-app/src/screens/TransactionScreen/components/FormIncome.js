@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert, StyleSheet, Text } from 'react-native';
-import { IncomeEntity } from '../../../entity/Income';
+import { IncomeEntity } from '../../../entity/IncomeEntity';
 import { IncomeInputType } from './input/IncomeInputType';
 import { IncomeInputDonnorName } from './input/IncomeInputDonnorName';
 import { IncomeInputAmount } from './input/IncomeInputAmount';
