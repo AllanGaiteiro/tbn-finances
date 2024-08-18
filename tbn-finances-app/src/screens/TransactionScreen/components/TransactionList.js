@@ -22,7 +22,7 @@ export function TransactionList() {
 
     useEffect(() => {
         if (!account) return;
-        const combinedSubscription = transactionRepository(account).observeTransactionList(setTransactions, setLoading, filters);
+        const combinedSubscription = transactionRepository(account.id).observeTransactionList(setTransactions, setLoading, filters);
         return () => combinedSubscription.unsubscribe();
     }, [filters, account]);
 

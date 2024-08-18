@@ -10,6 +10,7 @@ export class AccountEntity {
         this.creationDate = new Date();
         this.lastUpdateDate = new Date();
         this.isSelected = false;
+        this.incomesTypeIds = [];
     }
 
     static fromFirebase(data) {
@@ -23,6 +24,7 @@ export class AccountEntity {
         account.creationDate = data.creationDate?.toDate();
         account.lastUpdateDate = data.lastUpdateDate?.toDate();
         account.isSelected = data.isSelected;
+        account.incomesTypeIds = data.incomesTypeIds;
         return account;
     }
 
@@ -38,6 +40,7 @@ export class AccountEntity {
             creationDate: this.creationDate,
             lastUpdateDate: this.lastUpdateDate,
             isSelected: this.isSelected,
+            incomesTypeIds: this.incomesTypeIds,
         };
     }
 

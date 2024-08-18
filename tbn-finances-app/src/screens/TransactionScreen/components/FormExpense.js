@@ -48,13 +48,13 @@ export function FormExpense({ expense: expenseItem = new Expense(), isFormVisibl
 
             try {
                 if (expense.id && expense.type === 'mensal') {
-                    await transactionRepository(account).expense.updateExpense(expense);
+                    await transactionRepository(account.id).expense.updateExpense(expense);
                 } else if (expense.id) {
                     expense.lastUpdateDate = new Date();
-                    await transactionRepository(account).expense.updateExpense(expense);
+                    await transactionRepository(account.id).expense.updateExpense(expense);
                 } else {
                     expense.creationDate = new Date();
-                    await transactionRepository(account).expense.addExpense(expense);
+                    await transactionRepository(account.id).expense.addExpense(expense);
                 }
 
                 setExpense(new Expense()); // Reinicie o formulário

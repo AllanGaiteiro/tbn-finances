@@ -12,7 +12,7 @@ export const SummaryCard = () => {
     useEffect(() => {
         if (!account) return;
         // Assinaturas retornarão funções para desinscrever
-        const unsubAmountByMonth = transactionRepository(account).observeTransactionByMonth(setAmountByMonth, setLoading, 'amount');
+        const unsubAmountByMonth = transactionRepository(account.id).observeTransactionByMonth(setAmountByMonth, setLoading, 'amount');
 
         // Quando qualquer dado é atualizado, removemos o indicador de carregamento
         const unsubscribes = [unsubAmountByMonth];

@@ -30,7 +30,7 @@ export function AddTransaction() {
             </View>
 
             {isFormIncomeVisible && !isFormExpenseVisible &&
-                <FormIncome income={new Income()} isFormVisible={isFormIncomeVisible} setIsFormVisible={setIsFormIncomeVisible} />
+                <FormIncome isFormVisible={isFormIncomeVisible} setIsFormVisible={setIsFormIncomeVisible} />
             }
             {isFormExpenseVisible && !isFormIncomeVisible &&
                 <FormExpense expense={new Expense()} isFormVisible={isFormExpenseVisible} setIsFormVisible={setIsFormExpenseVisible} />

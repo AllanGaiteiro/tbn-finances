@@ -1,27 +1,24 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-export const TypesSlider = ({options, currentType, onTypeChange }) => {
-  // Função para determinar a cor de fundo com base no status atual
-  const getBackgroundColor = (value) => {
-    const option = options.find(option => option.value === value);
-    return option ? option.color : '#ccc'; // cor padrão se não encontrado
-  };
+export const TypesSlider = ({ options, currentType, onTypeChange, onlyValue = true }) => {
+  const optValue = (option) => option?.id || option?.value;
+  const currentTypeValue = () => currentType?.id || currentType;
 
   return (
     <View style={styles.sliderContainer}>
       {options.map((option) => (
         <TouchableOpacity
-          key={option.value}
+          key={optValue()}
           style={[
             styles.sliderOption,
-            currentType === option.value ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
+            currentTypeValue() === optValue(option) ? { ...styles.activeOption, backgroundColor: '#2196F3' } : styles.inactiveOption
           ]}
-          onPress={() => onTypeChange(option.value)}
+          onPress={() => onTypeChange(onlyValue ? option?.value : option)}
         >
           <Text style={[
             styles.sliderOptionText,
-            currentType === option.value ? styles.activeText : styles.inactiveText
+            currentTypeValue() === optValue(option) ? styles.activeText : styles.inactiveText
           ]}>{option.label}</Text>
         </TouchableOpacity>
       ))}

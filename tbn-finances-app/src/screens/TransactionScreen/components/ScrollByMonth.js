@@ -13,7 +13,7 @@ export const ScrollByMonth = () => {
 
     useEffect(() => {
         if (!account) return;
-        const unsubscribe = transactionRepository(account).observeTransactionAmountByMonth(setTransactionMonths, setLoading);
+        const unsubscribe = transactionRepository(account.id).observeTransactionAmountByMonth(setTransactionMonths, setLoading);
 
         return () => unsubscribe();
     }, [account]);

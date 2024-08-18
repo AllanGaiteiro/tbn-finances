@@ -16,7 +16,7 @@ export const ExpensesLateCard = () => {
 
     useEffect(() => {
         if (!account) return;
-        const transactionSubscription = transactionRepository(account).observerTransactionLate(setTransactions, setLoading, { ...filters, status: 'atrasada' });
+        const transactionSubscription = transactionRepository(account.id).observerTransactionLate(setTransactions, setLoading, { ...filters, status: 'atrasada' });
         const unsubscribes = [transactionSubscription];
         const checkLoading = () => {
             if (unsubscribes.every((unsub) => unsub !== undefined)) {
