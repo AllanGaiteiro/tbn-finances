@@ -8,9 +8,13 @@ import { PublicCNPJWS } from '../../../../core/models/ConsultaCNPJ';
 export function InputAccountCNPJ({ accountData, setAccountData, editable }) {
     const [error, setError] = useState(null); // Estado para armazenar o erro
 
-    useEffect(() => {
-        // Verifica se o CNPJ está completo (18 caracteres)
-        if (accountData.cnpj.length === 18) {
+
+    const handleCNPJChange = (formattedCNPJ) => {
+        if (formattedCNPJ !== accountData.cnpj) {
+            setAccountData({ ...accountData, cnpj: formattedCNPJ });
+        }
+        if (formattedCNPJ !== accountData.cnpj && accountData.cnpj?.length === 18) {
+
             // Faz a busca por mais dados da empresa
             PublicCNPJWS.search(accountData.cnpj)
                 .then(res => {
@@ -22,10 +26,6 @@ export function InputAccountCNPJ({ accountData, setAccountData, editable }) {
                     console.error('Erro ao buscar dados do CNPJ:', err.message);
                 });
         }
-    }, [accountData.cnpj]);
-
-    const handleCNPJChange = (formattedCNPJ) => {
-        setAccountData({ ...accountData, cnpj: formattedCNPJ });
     };
 
     return (
