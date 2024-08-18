@@ -15,13 +15,13 @@ export const SliderAccountIsSelected = ({ accountData, disabled = false, stylesW
   const [accountSelected, setAccountSelected] = useState(accountData?.id && account === accountData?.id);
 
   useEffect(() => {
-    setAccountSelected(accountData?.id && account === accountData?.id);
+    setAccountSelected(accountData?.id && account.id === accountData?.id);
   }, [account])
 
   const updateAccountSelected = () => {
-    if (!accountSelected && accountData.id && account !== accountData.id) {
+    if (!accountSelected && accountData.id && account.id !== accountData.id) {
       userService.updateAccountSelected(user.uid, accountData.id)
-        .then(() => updateAccount(accountData.id));
+        .then(() => updateAccount(accountData));
 
     }
   }

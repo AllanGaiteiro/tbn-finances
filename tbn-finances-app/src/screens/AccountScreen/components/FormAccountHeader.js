@@ -10,7 +10,7 @@ export function FormAccountHeader({ accountData, expand }) {
     const [accountSelected, setAccountSelected] = useState(null);
 
     useEffect(() => {
-        setAccountSelected(accountData?.id && account === accountData?.id);
+        setAccountSelected(accountData?.id && account.id === accountData?.id);
     }, [account])
 
     return <View style={styles.accountHeader}>
