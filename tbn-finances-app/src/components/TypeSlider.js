@@ -7,9 +7,9 @@ export const TypesSlider = ({ options, currentType, onTypeChange, onlyValue = tr
 
   return (
     <View style={styles.sliderContainer}>
-      {options.map((option) => (
+      {options.map((option,i) => (
         <TouchableOpacity
-          key={optValue()}
+          key={i}
           style={[
             styles.sliderOption,
             currentTypeValue() === optValue(option) ? { ...styles.activeOption, backgroundColor: '#2196F3' } : styles.inactiveOption
