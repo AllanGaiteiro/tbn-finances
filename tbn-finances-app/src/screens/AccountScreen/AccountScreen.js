@@ -36,6 +36,8 @@ export const AccountScreen = () => {
         accountData={newAccountData}
         expand={false}
       />
+      {!isLoading && accounts.length > 0 ? <Text style={styles.title}> Lista de Contas e Eventos</Text> : null}
+
       {isLoading ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
@@ -74,5 +76,12 @@ const styles = StyleSheet.create({
   },
   loading: {
     marginTop: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginVertical: 20,
+    textAlign: 'center',
+    color: '#333',
   },
 });
