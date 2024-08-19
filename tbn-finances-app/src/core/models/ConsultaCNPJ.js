@@ -5,7 +5,7 @@ export class PublicCNPJWS {
         console.log(cnpj)
         try {
             const response = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj.replace(/\D/g, '')}`);
-            const data = await response.json();
+            const data = response.json();
             console.log('Dados da empresa:', data['razao_social']);
             return data
         } catch (error) {
