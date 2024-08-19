@@ -2,7 +2,7 @@ export class TypeOptionEntity {
     constructor() {
         this.label = '';
         this.value = '';
-        this.action = 'unica_padrao'; // unica | unica_padrao | recorrente;
+        this.action = 'unique_default'; // unique | unique_default | recorrence;
         this.id = '';
     }
 
