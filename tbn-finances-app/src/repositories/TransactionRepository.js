@@ -54,21 +54,24 @@ class TransactionRepository {
         const startDate = new Date(year, month, 1, 0, 0, 0);
         const endDate = new Date(year, month + 1, 0, 23, 59, 59);
 
-        let transactionQuery = this.queryTransactionDateByMonth(startDate, endDate, sortBy, sortOrder);
-        let unpaidTransactionsQuery = this.queryDueDateByMonth(startDate, endDate, sortBy, sortOrder);
+        let transactionDateQuery = this.queryTransactionDateByMonth(startDate, endDate, sortBy, sortOrder);
+        let dueDateQuery = this.queryDueDateByMonth(startDate, endDate, sortBy, sortOrder);
+        let lastRecurrenceDateQuery = this.queryLastRecurrenceDateByMonth(startDate, sortBy, sortOrder);
 
         if (searchText) {
-            transactionQuery = this.querySeachDescription(transactionQuery, searchText);
-            unpaidTransactionsQuery = this.querySeachDescription(transactionQuery, searchText);
+            transactionDateQuery = this.querySeachDescription(transactionDateQuery, searchText);
+            dueDateQuery = this.querySeachDescription(dueDateQuery, searchText);
+            lastRecurrenceDateQuery = this.querySeachDescription(lastRecurrenceDateQuery, searchText);
         }
 
-        const transactionObservable = this.fromCollectionRef(transactionQuery);
-        const unpaidObservable = this.fromCollectionRef(unpaidTransactionsQuery);
+        const transactionDateObservable = this.fromCollectionRef(transactionDateQuery);
+        const dueDateObservable = this.fromCollectionRef(dueDateQuery);
+        const lastRecurrenceDateObservable = this.fromCollectionRef(lastRecurrenceDateQuery);
 
-        const combinedObservable = combineLatest([transactionObservable, unpaidObservable]);
+        const combinedObservable = combineLatest([transactionDateObservable, dueDateObservable, lastRecurrenceDateObservable]);
 
-        const combinedSubscription = combinedObservable.subscribe(([transactionSnapshot, unpaidSnapshot]) => {
-            const transactions = [...transactionSnapshot.docs, ...unpaidSnapshot.docs].map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
+        const combinedSubscription = combinedObservable.subscribe(([transactionDateSnapshot, dueDateSnapshot, lastRecurrenceDateSnapshot]) => {
+            const transactions = [...transactionDateSnapshot.docs, ...dueDateSnapshot.docs, ...lastRecurrenceDateSnapshot.docs].map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
             console.log(this.account, transactions.length);
 
             if (type === 'amount') {
@@ -165,6 +168,36 @@ class TransactionRepository {
         }
     }
 
+    async handleRecurrenceUpdate(transaction) {
+        const promises = []
+        try {
+            if (transaction.isRecurrence) {
+
+                promises.push(this.updateIncome({
+                    id: transaction.id,
+                    lastRecurrenceDate: new Date(),
+                    dueDate: null,
+                    transactionDate: null
+                }));
+
+                const newtransactionData = { ...transaction };
+                newtransactionData.isRecurrence = false;
+                newtransactionData.type = TypeOptionEntity.fromFirebase(newtransactionData.type).toFirestore();
+                newtransactionData.recurrenceId = transaction.id;
+                newtransactionData.status = 'recebido';
+                delete newtransactionData.id;
+                promises.push(this.addIncome(newtransactionData));
+
+                await Promise.all(promises)
+            }
+
+            console.log("Recurrence update and new transaction creation successful.");
+        } catch (error) {
+            throw FirebaseErrorInterceptor.handle(error, "Error handling recurrence update: ");
+        }
+    }
+
+
     filterTransactionList = (transactions, typeTransaction, status, statusEq = true) => {
         return transactions
             .filter(t => t.typeTransaction === typeTransaction && (statusEq ? t.status === status : t.status !== status)) ?? []
@@ -172,6 +205,14 @@ class TransactionRepository {
 
     querySeachDescription(transactionQuery, searchText) {
         return query(transactionQuery, where('description', '>=', searchText), where('description', '<=', searchText + '\uf8ff'));
+    }
+
+    queryLastRecurrenceDateByMonth(startDate, sortBy, sortOrder) {
+        console.log('recurrence',startDate)
+        return query(this.collectionRef,
+            where("lastRecurrenceDate", "<=", startDate),
+            where("isRecurrence", "==", true),
+            orderBy(sortBy || "dueDate", sortOrder || "desc"));
     }
 
     queryDueDateByMonth(startDate, endDate, sortBy, sortOrder) {

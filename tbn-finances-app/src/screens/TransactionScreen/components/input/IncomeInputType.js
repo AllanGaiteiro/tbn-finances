@@ -17,13 +17,13 @@ export function IncomeInputType({ accountData: item, income, setIncome }) {
         if (name === 'type') {
             const type = typesOptions.find(t => t.id === value.id);
 
-            if (type && type.action === 'recorrente') {
+            if (type && type.action === 'recorrence') {
                 handleInputChange('isRecurrence', true)
                 handleInputChange('status', 'em_progresso');
                 handleInputChange('transactionDate', null);
                 handleInputChange('lastRecurrenceDate', new Date());
             }
-            if (type && type.action !== 'recorrente' && income.type === 'oferta_mensal') {
+            if (type && type.action !== 'recorrence') {
                 handleInputChange('isRecurrence', false)
                 handleInputChange('transactionDate', new Date());
                 handleInputChange('status', 'recebido');

@@ -50,7 +50,7 @@ export function FormIncome({ income: incomeItem, setIsFormVisible }) {
 
             try {
                 if (isRecurrence()) {
-                    await transactionRepository(account.id).income.handleRecurrenceUpdate(income)
+                    await transactionRepository(account.id).handleRecurrenceUpdate(income)
                 } else if (isUpdate()) {
                     income.lastUpdateDate = new Date()
                     await transactionRepository(account.id).income.updateIncome(income)
@@ -75,7 +75,7 @@ export function FormIncome({ income: incomeItem, setIsFormVisible }) {
 
         <IncomeInputType accountData={account} income={income} setIncome={setIncome} />
 
-        <IncomeInputDonnorName isVisible={income.type.action !== 'unica_padrao'} income={income} setIncome={setIncome} />
+        <IncomeInputDonnorName isVisible={income.type.action !== 'unique_default'} income={income} setIncome={setIncome} />
 
         <IncomeInputAmount income={income} setIncome={setIncome} />
 

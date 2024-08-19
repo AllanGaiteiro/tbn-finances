@@ -13,10 +13,10 @@ export function IncomeInputDonnorName({ isVisible, income, setIncome }) {
 
     return isVisible &&
         <View>
-            <Text>Nome Do Voluntario:</Text>
+            <Text>Descrição sobre o valor:</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Digite o nome..."
+                placeholder="Digite a descrição ..."
                 value={income.description}
                 onChangeText={(text) => handleInputChange('description', text)} />
         </View>;
