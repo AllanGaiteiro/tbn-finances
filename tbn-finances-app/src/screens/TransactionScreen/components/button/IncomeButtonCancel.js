@@ -19,7 +19,7 @@ export function IncomeButtonCancel({ isVisible, income, setIsFormVisible }) {
         <TouchableOpacity
             style={styles.cancelButton}
             onPress={handleCancel}>
-            <Text style={styles.buttonText}>Cancelar Essa Oferta</Text>
+            <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>;
 }
 
