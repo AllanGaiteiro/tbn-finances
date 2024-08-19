@@ -7,7 +7,7 @@ export function IncomeButtonLastRecurrenceDateMobile({ setShowDatePicker, }) {
             <TouchableOpacity
                 style={styles.receivedButton}
                 onPress={() => setShowDatePicker(true)}>
-                <Text style={styles.buttonText}>Selecione o ultimo Recebimento</Text>
+                <Text style={styles.buttonText}>Adicionar Recebimento</Text>
             </TouchableOpacity>
         </View>;
 }
