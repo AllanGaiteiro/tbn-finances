@@ -1,5 +1,5 @@
 // Importe os módulos necessários do Firebase
-import { collection, query, writeBatch, onSnapshot, where, orderBy, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../settings/firebaseConfig';
 import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
 import { TypeOptionEntity } from '../entity/TypeOptionEntity';
@@ -8,7 +8,7 @@ class IncomeRepository {
     constructor(account) {
         this.account = account;
         this.collectionRef = collection(firestore, `accounts/${this.account}/transactions`);
-        this.docRef = (id) => doc(firestore, `accounts/${this.accountId}/transactions`, id);
+        this.docRef = (id) => doc(firestore, `accounts/${this.account}/transactions`, id);
     }
 
     // Adicionar um novo income
@@ -25,51 +25,21 @@ class IncomeRepository {
     // Atualizar um income existente
     async updateIncome(income) {
         try {
-            const incomeRef = doc(this.collectionRef, income.id);
-            await updateDoc(incomeRef, income);
+            await updateDoc(this.docRef(income.id), income);
             console.log("Income successfully updated - ", income.id);
         } catch (error) {
             throw FirebaseErrorInterceptor.handle(error, "Error updating income: " + income.id + " - ");
         }
     }
 
-    async handleRecurrenceUpdate(income) {
-        const batch = writeBatch(firestore);
-
-        try {
-            // Atualiza a income original se o status é alterado para 'recebido'
-            if (income.isRecurrence) {
-                const originalIncomeRef = this.docRef(income.id);
-                batch.update(originalIncomeRef, {
-                    lastRecurrenceDate: new Date(), // Define a data da última recorrência
-                    // Mantém o status atual, ou pode definir outro status conforme a necessidade
-                });
-
-                // Cria uma nova income baseada na recorrente, com referência à original
-                const newIncomeData = {
-                    ...income.toFirestore(),
-                    recurrenceId: income.id, // Referência à renda recorrente original
-                    isRecurrence: false, // A nova renda não é mais uma recorrência
-                    dueDate: new Date(),
-                    status: 'recebido',
-                    category: 'oferta_voluntaria',
-                };
-                delete newIncomeData.id; // Remove o id para garantir a criação de um novo documento
-                batch.set(doc(this.collectionRef), newIncomeData);
-            }
-
-            await batch.commit();
-            console.log("Recurrence update and new income creation successful.");
-        } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Error handling recurrence update: ");
-        }
-    }
     async cancelIncome(income) {
         try {
-            income.status = 'cancelado';
-            // income.recurrenceDay = null;
-            income.dueDate = null;
-            const cancelIncome = income.toFirestore();
+            const cancelIncome = {...income}
+            cancelIncome.status = 'cancelado';
+            cancelIncome.TransactionDate = null;
+            cancelIncome.dueDate = null;
+            cancelIncome.type = TypeOptionEntity.fromFirebase(income.type).toFirestore()
+            console.log(cancelIncome)
             const incomeRef = doc(this.collectionRef, cancelIncome.id);
             await updateDoc(incomeRef, cancelIncome);
             console.log("Income successfully canceled - ", cancelIncome.id);

@@ -35,7 +35,7 @@ export class TransactionEntity {
         expense.currentInstallment = data.currentInstallment || null;
         expense.creationDate = data.creationDate?.toDate();
         expense.lastUpdateDate = data.lastUpdateDate?.toDate();
-        expense.lastRecurrenceDate = data.lastRecurrenceDate;
+        expense.lastRecurrenceDate = data.lastUpdateDate ? data.lastRecurrenceDate?.toDate() : null;
         expense.isRecurrence = data.isRecurrence;
         return expense;
     }
@@ -53,7 +53,7 @@ export class TransactionEntity {
             currentInstallment: this.currentInstallment,
             creationDate: this.creationDate,
             lastUpdateDate: this.lastUpdateDate,
-            lastRecurrenceDate: this.lastRecurrenceDate,
+            lastRecurrenceDate: this.lastRecurrenceDate || null,
             isRecurrence: this.isRecurrence
         };
         console.log(data)
