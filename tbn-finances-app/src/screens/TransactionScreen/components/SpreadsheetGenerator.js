@@ -1,37 +1,45 @@
 import React from 'react';
-import { View, Button, Platform, StyleSheet, Text } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import XLSX from 'xlsx';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native';
+import { TransactionEntity } from '../../../entity/TransactionEntity';
 
 export const SpreadsheetGenerator = ({ transactions }) => {
     const generateSpreadsheet = async () => {
-        const csv = XLSX.utils.sheet_to_csv(XLSX.utils.json_to_sheet(transactions.map(t => t.convertTransactionLanguageBR())));
+        // Cria uma nova planilha
+        const ws_data = transactions.map(t => TransactionEntity.convertTransactionLanguageBR(t));
+        console.log('Dados da planilha:', ws_data);
 
-        // Construa o caminho do arquivo com base no sistema operacional
+        const ws = XLSX.utils.json_to_sheet(ws_data);
+
+        // Cria o livro de trabalho (workbook)
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Transações');
+
+        // Gera o arquivo
+        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
+
         let path = '';
-
         if (Platform.OS === 'android') {
-            // No Android, use o diretório de cache
-            path = `${FileSystem.cacheDirectory}/transactions-${new Date().toISOString()}.csv`;
+            path = `${FileSystem.cacheDirectory}/transactions-${new Date().toISOString()}.xlsx`;
         } else {
-            // No iOS, use o diretório de documentos do aplicativo
-            path = `${FileSystem.documentDirectory}/transactions-${new Date().toISOString()}.csv`;
+            path = `${FileSystem.documentDirectory}/transactions-${new Date().toISOString()}.xlsx`;
         }
 
         try {
-            // Escreva o arquivo no sistema de arquivos
-            await FileSystem.writeAsStringAsync(path, csv, { encoding: FileSystem.EncodingType.UTF8 });
+            // Escreve o arquivo no sistema de arquivos
+            await FileSystem.writeAsStringAsync(path, wbout, { encoding: FileSystem.EncodingType.Base64 });
             console.log('Planilha gerada com sucesso:', path);
 
-            // Compartilhe o arquivo
+            // Compartilha o arquivo
             await Sharing.shareAsync(path);
         } catch (error) {
             console.error('Erro ao gerar a planilha:', error);
         }
     };
+
     return (
         <TouchableOpacity style={styles.button} onPress={generateSpreadsheet}>
             <Ionicons name="document" size={24} color="white" />
@@ -49,11 +57,11 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        marginBottom: 10,
     },
     buttonText: {
         color: 'white',
-        fontSize: 18,
-        marginLeft: 10,
+        marginLeft: 8,
     },
 });
+
+export default SpreadsheetGenerator;
