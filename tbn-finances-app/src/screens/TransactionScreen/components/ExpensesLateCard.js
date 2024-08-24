@@ -57,9 +57,9 @@ export const ExpensesLateCard = () => {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
-        padding: 16,
+        padding: 10,
         borderRadius: 8,
-        margin: 16,
+        margin: 10,
         borderColor: '#FF5733',
         borderWidth: 1,
         flexDirection: 'row', // Alinha os itens horizontalmente
