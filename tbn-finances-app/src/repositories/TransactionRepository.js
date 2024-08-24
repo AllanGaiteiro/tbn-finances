@@ -27,10 +27,10 @@ class TransactionRepository {
     }
 
     observeTransactionList(setTransaction, setLoading, filters = new FiltersEntity()) {
-        if (filters.status === 'atrasada') {
+        if (filters?.status === 'atrasada') {
             return this.observerTransactionLate(setTransaction, setLoading, filters);
         } else {
-            return this.observeTransactionByMonth(setTransaction, setLoading, filters);
+            return this.observeTransactionByMonth(setTransaction, setLoading, 'select', filters);
         }
     }
     observerTransactionLate(setTransaction, setLoading, filters = new FiltersEntity()) {
@@ -50,7 +50,8 @@ class TransactionRepository {
         return transactionSubscription
     }
 
-    observeTransactionByMonth(setValue, setLoading, type = 'select', { month, year, sortOrder, sortBy, text: searchText } = new FiltersEntity()) {
+    observeTransactionByMonth(setValue, setLoading, type = 'select', filter = new FiltersEntity()) {
+        const { month, year, sortOrder, sortBy, text: searchText } = filter
         const startDate = new Date(year, month, 1, 0, 0, 0);
         const endDate = new Date(year, month + 1, 0, 23, 59, 59);
 
@@ -92,43 +93,73 @@ class TransactionRepository {
         return combinedSubscription;
     }
 
-    observeTransactionAmountByMonth(seExpenseMonths, setLoading) {
-        const q = query(this.collectionRef, orderBy("lastUpdateDate", "desc"));
+    observeTransactionAmountByMonth(setTransactionMonths, setLoading, monthsToLoad = { after: 3, before: 3 }) {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+        const startDate = new Date(currentYear, currentMonth - monthsToLoad.before, 1);
+        const endDate = new Date(currentYear, currentMonth + monthsToLoad.after + 1, 0);
+        const expenseMonths = {};
+        const incomeMonths = {};
+        const month = {};
+        const year = {};
 
+        let tempDate = new Date(startDate);
+        while (tempDate <= endDate) {
+            const monthYearKey = tempDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+            expenseMonths[monthYearKey] = 0;
+            incomeMonths[monthYearKey] = 0;
+            month[monthYearKey] = tempDate.getMonth();
+            year[monthYearKey] = tempDate.getFullYear();
+            tempDate.setMonth(tempDate.getMonth() + 1);  // Avança para o próximo mês
+        }
+        const q = this.queryLastUpdateDateByMonth(startDate,endDate);
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const expenseMonths = {};
-            const incomeMonths = {};
-            const month = {};
-            const year = {};
-            console.log(snapshot.docs.length)
             snapshot.docs.forEach(doc => {
                 const data = TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id });
                 const date = data?.transactionDate || data.dueDate;
-                if (date) {
+                const lastRecurrenceDate = data?.lastRecurrenceDate;
+                const amount = data.amount;
+
+                if (date && amount) {
                     const monthYearKey = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-                    if (!expenseMonths[monthYearKey]) expenseMonths[monthYearKey] = 0;
-                    if (!incomeMonths[monthYearKey]) incomeMonths[monthYearKey] = 0;
 
                     if (data.typeTransaction === 'income') {
-                        incomeMonths[monthYearKey] += Number(data.amount);
+                        incomeMonths[monthYearKey] += amount;
                     } else {
-                        expenseMonths[monthYearKey] += Number(data.amount);
+                        expenseMonths[monthYearKey] += amount;
                     }
-                    month[monthYearKey] = date.getMonth();
-                    year[monthYearKey] = date.getFullYear();
+                }
+
+                // Distribui transações recorrentes nos meses subsequentes
+                if (data.isRecurrence && lastRecurrenceDate) {
+                    let recurrenceDate = new Date(lastRecurrenceDate);
+                    while (recurrenceDate <= endDate) {
+                        const recurrenceMonthYearKey = recurrenceDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+                        if (data.typeTransaction === 'income') {
+                            incomeMonths[recurrenceMonthYearKey] += Number(data.amount);
+                        } else {
+                            expenseMonths[recurrenceMonthYearKey] += Number(data.amount);
+                        }
+                        recurrenceDate.setMonth(recurrenceDate.getMonth() + 1);
+                    }
                 }
             });
 
-            const sortedMonths = Object.keys(expenseMonths).sort((a, b) => year[a] > year[b] ? - 1 : (year[a] === year[b] && month[a] > month[b] ? -1 : 1)).map(key => ({
-                monthId: key,
-                month: month[key],
-                year: year[key],
-                expenseMonth: expenseMonths[key] ?? 0,
-                incomeMonth: incomeMonths[key] ?? 0,
-                totalMonth: incomeMonths[key] - expenseMonths[key],
-            }));
+            // Verifica os meses que têm valores e filtra os que não têm
+            const sortedMonths = Object.keys(expenseMonths)
+                .filter(key => expenseMonths[key] > 0 || incomeMonths[key] > 0)
+                .sort((a, b) => year[a] > year[b] ? -1 : (year[a] === year[b] && month[a] > month[b] ? -1 : 1))
+                .map(key => ({
+                    monthId: key,
+                    month: month[key],
+                    year: year[key],
+                    expenseMonth: expenseMonths[key]?.toFixed(2) ?? 0,
+                    incomeMonth: incomeMonths[key]?.toFixed(2) ?? 0,
+                    totalMonth: incomeMonths[key] - expenseMonths[key],
+                }));
 
-            seExpenseMonths(sortedMonths);
+            setTransactionMonths(sortedMonths);
             setLoading(false);
         }, (error) => {
             setLoading(false);
@@ -207,8 +238,17 @@ class TransactionRepository {
         return query(transactionQuery, where('description', '>=', searchText), where('description', '<=', searchText + '\uf8ff'));
     }
 
+    queryLastUpdateDateByMonth(startDate, endDate) {
+        return query(
+            this.collectionRef,
+            where("lastUpdateDate", ">=", startDate),
+            where("lastUpdateDate", "<=", endDate),
+            where('status', '!=', 'cancelado'),
+            orderBy("lastUpdateDate", "desc")
+        );
+    }
+
     queryLastRecurrenceDateByMonth(startDate, sortBy, sortOrder) {
-        console.log('recurrence',startDate)
         return query(this.collectionRef,
             where("lastRecurrenceDate", "<=", startDate),
             where("isRecurrence", "==", true),
