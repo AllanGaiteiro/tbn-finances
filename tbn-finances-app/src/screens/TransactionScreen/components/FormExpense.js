@@ -71,7 +71,7 @@ export function FormExpense({ expense: expenseItem = new Expense(), isFormVisibl
 
     return <View style={styles.form}>
         <Text style={styles.title}>{expense.id ? 'Detalhes da' : 'Adicionar'} Despesa</Text>
-        <ExpenseInputType expense={expense} setExpense={setExpense} />
+        <ExpenseInputType accountData={account} expense={expense} setExpense={setExpense} />
         <ExpenseInputDescription expense={expense} setExpense={setExpense} />
         <ExpenseInputTotalInstallments expense={expense} setExpense={setExpense} />
         <ExpenseInputAmount expense={expense} setExpense={setExpense} />

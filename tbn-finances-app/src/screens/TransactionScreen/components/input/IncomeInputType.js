@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TypesSlider } from '../../../../components/TypeSlider';
-import { incomeTypeRepository } from '../../../../repositories/IncomeTypesRepository';
+import { transactionTypeRepository } from '../../../../repositories/TransactionTypesRepository';
 import { TypeOptionEntity } from '../../../../entity/TypeOptionEntity';
 
 export function IncomeInputType({ accountData: item, income, setIncome }) {
@@ -9,7 +9,7 @@ export function IncomeInputType({ accountData: item, income, setIncome }) {
     const [typesOptions, setTypesOptions] = useState([new TypeOptionEntity()]);
 
     useEffect(() => {
-        const unsubscribe = incomeTypeRepository.getIncomeTypesByIds(accountData.incomesTypeIds, setTypesOptions)
+        const unsubscribe = transactionTypeRepository('incomeTypes').getTransctionTypesByIds(accountData.incomesTypeIds, setTypesOptions)
         return () => unsubscribe();
     }, [accountData?.incomesTypeIds])
 
@@ -21,11 +21,11 @@ export function IncomeInputType({ accountData: item, income, setIncome }) {
                 handleInputChange('isRecurrence', true)
                 handleInputChange('status', 'em_progresso');
                 handleInputChange('transactionDate', null);
-                handleInputChange('lastRecurrenceDate', new Date());
+                handleInputChange('lastRecurrenceDate',income.lastRecurrenceDate || new Date());
             }
             if (type && type.action !== 'recorrence') {
                 handleInputChange('isRecurrence', false)
-                handleInputChange('transactionDate', new Date());
+                handleInputChange('transactionDate',income.transactionDate || new Date());
                 handleInputChange('status', 'recebido');
                 handleInputChange('lastRecurrenceDate', null);
             }

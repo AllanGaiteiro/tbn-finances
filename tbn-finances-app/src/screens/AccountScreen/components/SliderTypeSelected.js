@@ -13,8 +13,7 @@ export const SliderTypeSelected = ({ accountData, setAccountData }) => {
     }, [accountData]);
 
     const handlerSetAccount = (option) => {
-        console.log(option)
-        setAccountData({ ...accountData, type: option.value, incomesTypeIds: option.incomeTypes })
+        setAccountData({ ...accountData, type: option.value, incomesTypeIds: option.incomeTypes, expenseTypeIds: option.expenseTypes })
     }
 
     const getBackgroundColor = (value) => {

@@ -25,7 +25,7 @@ export class TransactionEntity {
         // Atribuir valores a partir de `data`, incluindo a conversão de datas
         expense.id = data.id;
         expense.typeTransaction = data.typeTransaction;
-        expense.type = data.typeTransaction === 'expense' ? data.type : TypeOptionEntity.fromFirebase(data.type);
+        expense.type = TypeOptionEntity.fromFirebase(data.type);
         expense.status = data.status;
         expense.amount = typeof data.amount === 'number' ? data.amount : Number(data.amount) || 0;
         expense.transactionDate = data.transactionDate ? data.transactionDate?.toDate() : null;

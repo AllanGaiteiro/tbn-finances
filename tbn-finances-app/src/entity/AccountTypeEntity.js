@@ -1,6 +1,7 @@
 export class AccountTypeEntity {
-    constructor(value = 'organization', incomeTypes = []) {
-        this.incomeTypes = incomeTypes;
+    constructor(value = 'organization', type = { incomeTypes: [], expenseTypes: [] }) {
+        this.incomeTypes = type.incomeTypes;
+        this.expenseTypes = type.expenseTypes;
         this.value = value; // 'organization' ou 'event'
         this.active = false;
     }
@@ -8,6 +9,7 @@ export class AccountTypeEntity {
     static fromFirebase(data) {
         const account = new AccountTypeEntity();
         account.incomeTypes = data.incomeTypes;
+        account.expenseTypes = data.expenseTypes;
         account.label = data.label;
         account.value = data.value;
         account.active = false;

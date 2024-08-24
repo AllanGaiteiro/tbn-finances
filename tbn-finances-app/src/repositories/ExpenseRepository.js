@@ -2,7 +2,7 @@
 import { collection, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../settings/firebaseConfig';
 import { FirebaseErrorInterceptor } from '../utils/FirebaseErrorUtil';
-import { Expense } from '../entity/Expense';
+import { TypeOptionEntity } from '../entity/TypeOptionEntity';
 
 export class ExpenseRepository {
     constructor(account) {
@@ -12,11 +12,8 @@ export class ExpenseRepository {
 
     async addExpense(expense) {
         try {
-            const docRef = await addDoc(this.collectionRef, {
-                ...expense,
-                transactionDate: expense.transactionDate || new Date(), // Garantindo que a data de pagamento seja definida
-                creationDate: new Date() // Data de criação do registro
-            });
+            const expenseData = { ...expense, transactionDate: expense.transactionDate || new Date(), type: TypeOptionEntity.fromFirebase(expense.type).toFirestore() }
+            const docRef = await addDoc(this.collectionRef, expenseData);
             console.log("Expense successfully added with ID: ", docRef.id);
         } catch (error) {
             throw FirebaseErrorInterceptor.handle(error, "Error adding expense: " + expense.id + " - ");
@@ -25,11 +22,8 @@ export class ExpenseRepository {
 
     async addExpense(expense) {
         try {
-            const docRef = await addDoc(this.collectionRef, {
-                ...expense,
-                transactionDate: expense.transactionDate || new Date(), // Garantindo que a data de pagamento seja definida
-                creationDate: new Date() // Data de criação do registro
-            });
+            const expenseData = { ...expense, transactionDate: expense.transactionDate || new Date(), type: TypeOptionEntity.fromFirebase(expense.type).toFirestore() }
+            const docRef = await addDoc(this.collectionRef, expenseData);
             console.log("Expense successfully added with ID: ", docRef.id);
         } catch (error) {
             throw FirebaseErrorInterceptor.handle(error, "Error adding expense: " + expense.id + " - ");
@@ -38,8 +32,10 @@ export class ExpenseRepository {
 
     async updateExpense(expense) {
         try {
+            const expenseData = { ...expense, type: TypeOptionEntity.fromFirebase(expense.type).toFirestore() }
+
             const expenseRef = doc(this.collectionRef, expense.id);
-            await updateDoc(expenseRef, expense);
+            await updateDoc(expenseRef, expenseData);
             console.log("Expense successfully updated - ", expense.id);
         } catch (error) {
             throw FirebaseErrorInterceptor.handle(error, "Error updating expense: " + expense.id + " - ");
