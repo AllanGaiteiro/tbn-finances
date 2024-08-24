@@ -85,7 +85,7 @@ class TransactionRepository {
                 setValue(amountByMonth);
             } else {
                 setLoading(false);
-                setValue(transactions);
+                setValue(transactions.filter((t => t.status !== 'cancelado')));
             }
 
         });
