@@ -34,24 +34,22 @@ export function TransactionSectionList() {
         const expenseAmount = transactions
             .filter(t => t.typeTransaction === 'expense')
             .reduce((sum, t) => sum + t.amount, 0);
-
         return [
-            { name: 'Income', count: incomeAmount, color: '#4CAF50' },
-            { name: 'Expense', count: expenseAmount, color: '#F44336' },
+            { name: 'Income', count: Number(incomeAmount?.toFixed(2)), color: '#4CAF50' },
+            { name: 'Expense', count: Number(expenseAmount?.toFixed(2)), color: '#F44336' },
         ];
     };
 
     const getPieDataForIncomeByType = () => {
         const incomeTransactions = transactions.filter(t => t.typeTransaction === 'income');
         const incomeTypeCounts = incomeTransactions.reduce((acc, curr) => {
-            const name = typeof curr?.type === 'string' ? curr.type : curr.type?.label;
-            console.log(name)
-            acc[name] = (acc[name] || 0) + curr.amount;
+            const key = typeof curr?.type === 'string' ? curr.type : curr.type?.label;
+            acc[key] = (acc[key] || 0) + curr.amount;
             return acc;
         }, {});
         return Object.keys(incomeTypeCounts).map(key => ({
             name: key,
-            count: incomeTypeCounts[key],
+            count: Number(incomeTypeCounts[key]?.toFixed(2)),
             color: getRandomColor(), // You can create a function to generate random colors
         }));
     };
@@ -59,12 +57,13 @@ export function TransactionSectionList() {
     const getPieDataForExpenseByType = () => {
         const expenseTransactions = transactions.filter(t => t.typeTransaction === 'expense');
         const expenseTypeCounts = expenseTransactions.reduce((acc, curr) => {
-            acc[curr.type] = (acc[curr.type] || 0) + curr.amount;
+            const key = typeof curr?.type === 'string' ? curr.type : curr.type?.label;
+            acc[key] = (acc[key] || 0) + curr.amount;
             return acc;
         }, {});
         return Object.keys(expenseTypeCounts).map(key => ({
             name: key,
-            count: expenseTypeCounts[key],
+            count: Number(expenseTypeCounts[key]?.toFixed(2)),
             color: getRandomColor(), // You can create a function to generate random colors
         }));
     };
@@ -128,9 +127,9 @@ export function TransactionSectionList() {
                 {!showDash && <TransactionList filteredTransactions={filteredTransactions} />}
                 {showDash &&
                     <ScrollView nestedScrollEnabled={true} contentContainerStyle={styles.scrollViewContent} >
-                        <TransactionPieChart title={'Entrada vs Saida'} data={getPieDataByTypeTransaction()} />
-                        <TransactionPieChart title={'Entrada Por Tipo'} data={getPieDataForIncomeByType()} />
-                        <TransactionPieChart title={'Saida Por Tipo'} data={getPieDataForExpenseByType()} />
+                        <TransactionPieChart title={'Receitas & Despesas'} data={getPieDataByTypeTransaction()} />
+                        <TransactionPieChart title={'Receitas / Tipo'} data={getPieDataForIncomeByType()} />
+                        <TransactionPieChart title={'Despesas / Tipo'} data={getPieDataForExpenseByType()} />
                     </ScrollView>
                 }
             </View>
