@@ -27,15 +27,15 @@ export class TransactionEntity {
         expense.typeTransaction = data.typeTransaction;
         expense.type = data.typeTransaction === 'expense' ? data.type : TypeOptionEntity.fromFirebase(data.type);
         expense.status = data.status;
-        expense.amount = data.amount;
-        expense.transactionDate = data.transactionDate?.toDate() || null;
-        expense.dueDate = data.dueDate?.toDate();
+        expense.amount = typeof data.amount === 'number' ? data.amount : Number(data.amount) || 0;
+        expense.transactionDate = data.transactionDate ? data.transactionDate?.toDate() : null;
+        expense.dueDate = data.dueDate ? data.dueDate?.toDate() : null;
         expense.description = data.description;
         expense.totalInstallments = data.totalInstallments || null;
         expense.currentInstallment = data.currentInstallment || null;
         expense.creationDate = data.creationDate?.toDate();
-        expense.lastUpdateDate = data.lastUpdateDate?.toDate();
-        expense.lastRecurrenceDate = data.lastUpdateDate ? data.lastRecurrenceDate?.toDate() : null;
+        expense.lastUpdateDate = data.lastUpdateDate ? data.lastUpdateDate?.toDate() : null;
+        expense.lastRecurrenceDate = data.lastRecurrenceDate ? data.lastRecurrenceDate?.toDate() : null;
         expense.isRecurrence = data.isRecurrence;
         return expense;
     }
@@ -77,12 +77,31 @@ export class TransactionEntity {
         return transacaoConvertida;
     }
 
-    formatDate(date) {
+    static convertTransactionLanguageBR(transaction) {
+        const transacaoConvertida = new TransacaoParaCSV(transaction.typeTransaction);
+
+        transacaoConvertida['DATA'] = this.formatDate(new Date(transaction.transactionDate)) || null;
+
+        // transacaoConvertida['Vencimento em'] = this.status !== 'recebido' && this.status !== 'pago' ? this.formatDate(new Date(this.dueDate)) : null
+        transacaoConvertida['VALOR'] = (Number(transaction.amount)?.toFixed(2) + '').replace('.', ',');
+        //transacaoConvertida['STATUS'] = this.status;
+        //transacaoConvertida['Parcelas'] = this.typeTransaction === 'expense' && this.type === 'parcela' ? `${this.currentInstallment}/${this.totalInstallments}` : null;
+        transacaoConvertida['TIPO'] = this.convertToTitleCase(transaction?.type?.label || '')
+        transacaoConvertida['DESCRICAO'] = transaction.description;
+
+        if (!transacaoConvertida['DATA']) delete transacaoConvertida['Data'];
+        //if (!transacaoConvertida['Vencimento em']) delete transacaoConvertida['Vencimento em'];
+        //if (!transacaoConvertida['Parcelas']) delete transacaoConvertida['Parcelas'];
+        return transacaoConvertida;
+    }
+
+    static formatDate(date) {
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
         return date.toLocaleDateString('pt-BR', options);
     }
 
-    convertToTitleCase(text) {
+
+    static convertToTitleCase(text) {
         return text.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
     }
 }
