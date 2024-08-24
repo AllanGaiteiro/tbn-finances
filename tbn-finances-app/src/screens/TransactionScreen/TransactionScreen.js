@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
-import { TransactionList } from './components/TransactionList';
-import { SummaryCard } from './components/SummaryCard';
-import { ScrollByMonth } from './components/ScrollByMonth';
+import { TransactionSectionList } from './components/TransactionSectionList';
+import { TransactionSectionMonth } from './components/TransactionSectionMonth';
 import { AddTransaction } from './components/button/AddTransaction';
 import { useAccount } from '../../providers/AccountProvider';
 import { ExpensesLateCard } from './components/ExpensesLateCard';
-import { TransactionFilterProvider, useTransactionFilters } from '../../providers/TransactionFilterProvider';
-
+import { TransactionFilterProvider } from '../../providers/TransactionFilterProvider';
+import { AddTransactionTitle } from './components/titles/AddTransactionTitle';
 
 export const TransactionScreen = ({ navigation }) => {
     const { account } = useAccount();
@@ -32,19 +31,21 @@ export const TransactionScreen = ({ navigation }) => {
                 { cancelable: false }
             );
         }
-
     };
 
     return (
         <ScrollView style={style.outerContainer}>
             <TransactionFilterProvider>
                 <View style={style.innerContainer}>
-                    <SummaryCard />
+                    {/* criar componente de valor atual */}
+
+                    <TransactionSectionMonth />
                     <ExpensesLateCard />
-                    <ScrollByMonth />
-                    <Text style={style.title}>Lista de Transações</Text>
+
+                    <AddTransactionTitle />
                     <AddTransaction />
-                    <TransactionList />
+
+                    <TransactionSectionList />
                 </View>
             </TransactionFilterProvider>
         </ScrollView>
@@ -56,13 +57,7 @@ const style = StyleSheet.create({
         flex: 1,
     },
     innerContainer: {
-        padding: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginVertical: 20,
-        textAlign: 'center',
-        color: '#333',
+        margin: 0,
+        padding: 10,
     },
 });
