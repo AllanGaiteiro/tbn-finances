@@ -25,7 +25,8 @@ class IncomeRepository {
     // Atualizar um income existente
     async updateIncome(income) {
         try {
-            await updateDoc(this.docRef(income.id), income);
+            const incomeData = { ...income, type: TypeOptionEntity.fromFirebase(income.type).toFirestore() }
+            await updateDoc(this.docRef(income.id), incomeData);
             console.log("Income successfully updated - ", income.id);
         } catch (error) {
             throw FirebaseErrorInterceptor.handle(error, "Error updating income: " + income.id + " - ");
