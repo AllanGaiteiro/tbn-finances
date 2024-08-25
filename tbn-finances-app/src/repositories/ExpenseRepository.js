@@ -12,17 +12,7 @@ export class ExpenseRepository {
 
     async addExpense(expense) {
         try {
-            const expenseData = { ...expense, transactionDate: expense.transactionDate || new Date(), type: TypeOptionEntity.fromFirebase(expense.type).toFirestore() }
-            const docRef = await addDoc(this.collectionRef, expenseData);
-            console.log("Expense successfully added with ID: ", docRef.id);
-        } catch (error) {
-            throw FirebaseErrorInterceptor.handle(error, "Error adding expense: " + expense.id + " - ");
-        }
-    }
-
-    async addExpense(expense) {
-        try {
-            const expenseData = { ...expense, transactionDate: expense.transactionDate || new Date(), type: TypeOptionEntity.fromFirebase(expense.type).toFirestore() }
+            const expenseData = { ...expense, transactionDate: expense.transactionDate || null, type: TypeOptionEntity.fromFirebase(expense.type).toFirestore() }
             const docRef = await addDoc(this.collectionRef, expenseData);
             console.log("Expense successfully added with ID: ", docRef.id);
         } catch (error) {
@@ -33,6 +23,7 @@ export class ExpenseRepository {
     async updateExpense(expense) {
         try {
             const expenseData = { ...expense, type: TypeOptionEntity.fromFirebase(expense.type).toFirestore() }
+            console.log("Expense successfully updated - ", expenseData);
 
             const expenseRef = doc(this.collectionRef, expense.id);
             await updateDoc(expenseRef, expenseData);
