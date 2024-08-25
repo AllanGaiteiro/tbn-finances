@@ -10,7 +10,6 @@ class TransactionTypesRepository {
     }
 
     getTransctionTypesByIds(ids, setTransctionType) {
-        console.log('get Transction types by id- ', ids)
         const q = query(this.collectionRef, where('id', 'in', ids))
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const types = querySnapshot.docs.map((doc) => TypeOptionEntity.fromFirebase({ ...doc.data(), id: doc.id }))

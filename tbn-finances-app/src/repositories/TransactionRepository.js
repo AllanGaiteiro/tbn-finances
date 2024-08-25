@@ -42,7 +42,6 @@ class TransactionRepository {
 
         const transactionSubscription = transactionObservable.subscribe((transactionSnapshot) => {
             const transactions = transactionSnapshot.docs.map(doc => TransactionEntity.fromFirebase({ ...doc.data(), id: doc.id }));
-            console.log('observerTransactionLate', transactions.length);
             setLoading(false);
             setTransaction(transactions);
         });
