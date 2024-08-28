@@ -24,7 +24,7 @@ export function TransactionMonthsDashboards({ transactionMonths, handleMonthYear
 
     const getIncomeData = () => transactionMonths.map(month => month.incomeMonth);
     const getExpenseData = () => transactionMonths.map(month => month.expenseMonth);
-    const getLabelsData = () => transactionMonths.map(month => month.month + '/' + month.year);
+    const getLabelsData = () => transactionMonths.map(month => (month.month + 1) + '/' + month.year);
 
     return (
         transactionMonths.length ? <View style={styles.chartContainer}>
