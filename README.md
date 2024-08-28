@@ -7,44 +7,11 @@ Este aplicativo de finanças permite que você gerencie suas finanças pessoais 
 
 ## Tabela de Conteúdos
 
-- [TBN Finances](#tbn-finances)
-  - [Tabela de Conteúdos](#tabela-de-conteúdos)
-  - [Descrição](#descrição)
-  - [Tecnologias Utilizadas](#tecnologias-utilizadas)
-  - [Funcionalidades](#funcionalidades)
+- [TBN Finances](#tbn-finances)  
   - [Capturas de Tela](#capturas-de-tela)
+  - [Funcionalidades](#funcionalidades)
+  - [Tecnologias Utilizadas](#tecnologias-utilizadas)
   - [Instalação](#instalação)
-- [Clone o repositório](#clone-o-repositório)
-- [Entre no diretório do projeto](#entre-no-diretório-do-projeto)
-- [Instale as dependências](#instale-as-dependências)
-- [ou](#ou)
-
-## Descrição
-
-Este aplicativo de finanças permite que você gerencie suas finanças pessoais e empresariais de forma separada, proporcionando uma visão clara e organizada de suas transações. Com ele, você pode registrar e categorizar despesas e receitas, acompanhar relatórios financeiros através de dashboards mensais interativos, e exportar seus dados para planilhas, facilitando a análise e o controle financeiro. É uma ferramenta completa para quem busca simplicidade e eficiência no gerenciamento de suas finanças pessoais e empresariais.
-
-## Tecnologias Utilizadas
-
-- [React Native](https://reactnative.dev/)
-- [Expo](https://expo.dev/)
-- [Redux](https://redux.js.org/)
-- [Firebase](https://firebase.google.com/)
-
-## Funcionalidades
-
-- **Autenticação de usuários**: Realize login e registro de forma segura.
-- **Integração com Firebase**: Integração com Firebase para armazenamento de dados.
-- **Autenticação de usuários**: Realize login e registro de forma segura.
-
-- **Dashboards mensais**: Visualize relatórios financeiros mensais em gráficos intuitivos.
-
-- **Listagem de transações**: Veja todas as suas transações em uma lista organizada.
-
-- **Contas Pendentes**: Exibição contas pendentes.
-
-- **Planilhas**: Exportação de dados para planilhas (whatsapp/email).
-
-- Notificações push
 
 
 ## Capturas de Tela
@@ -65,6 +32,28 @@ Aqui estão algumas capturas de tela do aplicativo:
 
 </details>
 
+## Funcionalidades
+
+- **Autenticação de usuários**: Realize login e registro de forma segura.
+- **Integração com Firebase**: Integração com Firebase para armazenamento de dados.
+- **Autenticação de usuários**: Realize login e registro de forma segura.
+
+- **Dashboards mensais**: Visualize relatórios financeiros mensais em gráficos intuitivos.
+
+- **Listagem de transações**: Veja todas as suas transações em uma lista organizada.
+
+- **Contas Pendentes**: Exibição contas pendentes.
+
+- **Planilhas**: Exportação de dados para planilhas (whatsapp/email).
+
+- Notificações push
+
+## Tecnologias Utilizadas
+
+- [React Native](https://reactnative.dev/)
+- [Expo](https://expo.dev/)
+- [Redux](https://redux.js.org/)
+- [Firebase](https://firebase.google.com/)
 
 ## Instalação
 
