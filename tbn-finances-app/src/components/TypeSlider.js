@@ -1,47 +1,53 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-export const TypesSlider = ({options, currentType, onTypeChange }) => {
-  // Função para determinar a cor de fundo com base no status atual
-  const getBackgroundColor = (value) => {
-    const option = options.find(option => option.value === value);
-    return option ? option.color : '#ccc'; // cor padrão se não encontrado
-  };
+export const TypesSlider = ({ options, currentType, onTypeChange, onlyValue = true }) => {
+  const optValue = (option) => option?.id || option?.value;
+  const currentTypeValue = () => currentType?.id || currentType;
 
   return (
-    <View style={styles.sliderContainer}>
-      {options.map((option) => (
-        <TouchableOpacity
-          key={option.value}
-          style={[
-            styles.sliderOption,
-            currentType === option.value ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
-          ]}
-          onPress={() => onTypeChange(option.value)}
-        >
-          <Text style={[
-            styles.sliderOptionText,
-            currentType === option.value ? styles.activeText : styles.inactiveText
-          ]}>{option.label}</Text>
-        </TouchableOpacity>
-      ))}
+    <View>
+      <Text>Selecione o Tipo de Entrada:</Text>
+      <View style={styles.sliderContainer}>
+        {options.map((option, i) => (
+          <TouchableOpacity
+            key={i}
+            style={[
+              styles.sliderOption,
+              currentTypeValue() === optValue(option) ? { ...styles.activeOption, backgroundColor: '#2196F3' } : styles.inactiveOption
+            ]}
+            onPress={() => onTypeChange(onlyValue ? option?.value : option)}
+          >
+            <Text style={[
+              styles.sliderOptionText,
+              currentTypeValue() === optValue(option) ? styles.activeText : styles.inactiveText
+            ]}>{option.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
+
   );
 };
 
 const styles = StyleSheet.create({
   sliderContainer: {
+    marginTop: 0,
+    marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 10,
-
+    flexWrap: 'wrap',
+    borderWidth: 1,
+    borderRadius: 20,
+     borderColor: '#ccc',
   },
   sliderOption: {
+    margin: 5,
     padding: 10,
     borderRadius: 20,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    borderWidth: 0,
+    backgroundColor: '#F5F8FD',
   },
   activeOption: {
     backgroundColor: '#4CAF50',

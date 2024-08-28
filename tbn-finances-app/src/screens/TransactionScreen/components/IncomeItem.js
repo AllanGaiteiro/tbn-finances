@@ -39,9 +39,9 @@ export function IncomeItem({ income }) {
             {!isFormVisible && <TouchableOpacity key={income.id} style={[styles.incomeItem, dynamicBorderStyle]}
                 onPress={() => setIsFormVisible(!isFormVisible)}>
                 <Text style={[styles.incomeAmount, dynamicAmountColorStyle]}>{income.amount}</Text>
-                <Text style={styles.incomeType}>{income.description}</Text>
+                <Text style={[styles.incomeType]}>{income.description}</Text>
                 <Text style={styles.incomeDate}>{formatDate(income.transactionDate)}</Text>
-                <Text style={[styles.incomeType,dynamicAmountColorStyle]}>{income.status}</Text>
+                <Text style={[styles.status,dynamicAmountColorStyle]}>{income.status}</Text>
             </TouchableOpacity>}
             {isFormVisible && <FormIncome income={income} setIsFormVisible={setIsFormVisible} />}
         </View>
@@ -72,17 +72,27 @@ const styles = StyleSheet.create({
     incomeType: {
         fontSize: 18,
         fontWeight: '500',
-        
+        width: '35%'
     },
     incomeAmount: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#333',
         color: '#4CAF50', // Cor verde para destacar o tipo
+        width: '25%'
+
+    },
+    status: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#4CAF50',
+        width: '25%'
     },
     incomeDate: {
         fontSize: 16,
         color: '#757575', // Cor suave para as datas
+        width: '20%'
+
     },
     container: {
         padding: 20,

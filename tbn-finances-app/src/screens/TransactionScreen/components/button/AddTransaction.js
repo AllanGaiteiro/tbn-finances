@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { Income } from '../../../../entity/Income';
 import { Expense } from '../../../../entity/Expense';
 import { FormExpense } from '../FormExpense';
 import { FormIncome } from '../FormIncome';
@@ -17,20 +16,20 @@ export function AddTransaction() {
                     <TouchableOpacity
                         style={[styles.button, styles.incomeButton]}
                         onPress={() => setIsFormIncomeVisible(!isFormIncomeVisible)}>
-                        <Text style={styles.buttonText}>{isFormIncomeVisible ? 'Fechar' : 'Adicionar Renda'}</Text>
+                        <Text style={styles.buttonText}>{isFormIncomeVisible ? 'Fechar' : 'Receita'}</Text>
                     </TouchableOpacity>
                 )}
                 {!isFormIncomeVisible && !isFormExpenseVisible && (
                     <TouchableOpacity
                         style={[styles.button, styles.expenseButton]}
                         onPress={() => setIsFormExpenseVisible(!isFormExpenseVisible)}>
-                        <Text style={styles.buttonText}>{isFormExpenseVisible ? 'Fechar' : 'Adicionar Despesa'}</Text>
+                        <Text style={styles.buttonText}>{isFormExpenseVisible ? 'Fechar' : 'Despesa'}</Text>
                     </TouchableOpacity>
                 )}
             </View>
 
             {isFormIncomeVisible && !isFormExpenseVisible &&
-                <FormIncome income={new Income()} isFormVisible={isFormIncomeVisible} setIsFormVisible={setIsFormIncomeVisible} />
+                <FormIncome isFormVisible={isFormIncomeVisible} setIsFormVisible={setIsFormIncomeVisible} />
             }
             {isFormExpenseVisible && !isFormIncomeVisible &&
                 <FormExpense expense={new Expense()} isFormVisible={isFormExpenseVisible} setIsFormVisible={setIsFormExpenseVisible} />

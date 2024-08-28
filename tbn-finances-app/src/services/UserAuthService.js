@@ -57,7 +57,7 @@ class UserAuthService {
     }
 
     monitorAuthState(callback) {
-        onAuthStateChanged(this.auth, callback);
+       return onAuthStateChanged(this.auth, callback);
     }
 
     async changeEmail(currentPassword, newEmail) {

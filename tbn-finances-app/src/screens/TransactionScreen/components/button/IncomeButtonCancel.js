@@ -1,11 +1,13 @@
 import React from 'react';
 import { Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { incomeRepository } from '../../../../repositories/IncomeRepository';
+import { transactionRepository } from '../../../../repositories/TransactionRepository';
+import { useAccount } from '../../../../providers/AccountProvider';
 
 export function IncomeButtonCancel({ isVisible, income, setIsFormVisible }) {
+    const { account } = useAccount()
     const handleCancel = async () => {
         try {
-            await incomeRepository.cancelIncome(income);
+            await transactionRepository(account.id).income.cancelIncome(income);
             setIsFormVisible(false); // Esconde o formulário
             Alert.alert("Cancelado", "A Renda Foi Cancelada.");
         } catch (error) {
@@ -17,7 +19,7 @@ export function IncomeButtonCancel({ isVisible, income, setIsFormVisible }) {
         <TouchableOpacity
             style={styles.cancelButton}
             onPress={handleCancel}>
-            <Text style={styles.buttonText}>Cancelar Essa Oferta</Text>
+            <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>;
 }
 

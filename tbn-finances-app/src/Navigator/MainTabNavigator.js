@@ -17,16 +17,16 @@ export function MainTabNavigator() {
           let iconName;
           let routeColor;
           if (route.name === 'Balanço') {
-            iconName = 'ios-wallet';
+            iconName = 'wallet';
             routeColor = '#F44336'; // Vermelho
           } else if (route.name === 'Sair') {
-            iconName = 'ios-log-out-outline';
+            iconName = 'log-out';
             routeColor = '#FFC107'; // Amarelo
           } else if (route.name === 'Configurações') {
-            iconName = 'ios-settings-outline';
+            iconName = 'settings';
             routeColor = '#2196F3'; // Azul
           } else if (route.name === 'Contas') {
-            iconName = 'ios-people-outline'; // Ícone para contas
+            iconName = 'people'; // Ícone para contas
             routeColor = '#4CAF50'; // Verde para contas
           }
 

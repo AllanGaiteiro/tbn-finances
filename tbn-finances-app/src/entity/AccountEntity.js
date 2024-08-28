@@ -1,7 +1,8 @@
 export class AccountEntity {
-    constructor(type = 'organization') {
+    constructor() {
         this.id = null;
-        this.type = type; // 'organization' ou 'event'
+        this.type = ''; // 'organization' ou 'event'
+        this.cnpj = '';
         this.name = '';
         this.description = '';
         this.adminId = ''; // ID do usuário que é administrador do conta
@@ -9,11 +10,14 @@ export class AccountEntity {
         this.creationDate = new Date();
         this.lastUpdateDate = new Date();
         this.isSelected = false;
+        this.incomesTypeIds = [];
+        this.expenseTypeIds = [];
     }
 
     static fromFirebase(data) {
         const account = new AccountEntity(data.type);
         account.id = data.id;
+        account.cnpj = data.cnpj;
         account.name = data.name;
         account.description = data.description;
         account.adminId = data.adminId;
@@ -21,6 +25,8 @@ export class AccountEntity {
         account.creationDate = data.creationDate?.toDate();
         account.lastUpdateDate = data.lastUpdateDate?.toDate();
         account.isSelected = data.isSelected;
+        account.incomesTypeIds = data.incomesTypeIds || [];
+        account.expenseTypeIds = data.expenseTypeIds || [];
         return account;
     }
 
@@ -28,6 +34,7 @@ export class AccountEntity {
         return {
             id: this.id,
             type: this.type,
+            cnpj: this.cnpj,
             name: this.name,
             description: this.description,
             adminId: this.adminId,
@@ -35,6 +42,24 @@ export class AccountEntity {
             creationDate: this.creationDate,
             lastUpdateDate: this.lastUpdateDate,
             isSelected: this.isSelected,
+            incomesTypeIds: this.incomesTypeIds || [],
+            expenseTypeIds: this.expenseTypeIds || [],
         };
+    }
+
+    static publicCNPJWSForAccountEntity(accountData, res) {
+        return {
+            ...accountData,
+            name: res['razao_social'],
+            description: res['estabelecimento']['atividade_principal']['descricao'],
+            adrees: {
+                logradouro: res['estabelecimento']['logradouro'],
+                numero: res['estabelecimento']['numero'],
+                complemento: res['estabelecimento']['complemento'],
+                bairro: res['estabelecimento']['bairro'],
+                cep: res['estabelecimento']['cep'],
+            }
+
+        }
     }
 }

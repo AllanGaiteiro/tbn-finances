@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const statusOptions = [
   { label: 'Despesas', value: 'expense', active: false, color: '#F44336' }, // Vermelho
-  { label: 'Ofertas', value: 'income', active: false, color: '#4CAF50' }, // Verde
+  { label: 'Receita', value: 'income', active: false, color: '#4CAF50' }, // Verde
 ];
 
 export const TypeTransactionSlider = ({ typeTransaction, setTypeTransaction }) => {

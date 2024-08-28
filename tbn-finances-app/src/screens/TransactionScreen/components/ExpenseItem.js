@@ -33,17 +33,17 @@ export function ExpenseItem({ expense }) {
         borderLeftColor: getBorderColorByStatus(expense.status),
     };
     const dynamicAmountColorStyle = {
-        color:  getBorderColorByStatus(expense.status),
+        color: getBorderColorByStatus(expense.status),
     };
 
     return (
         <View key={expense.id}>
-            {!isFormVisible && <TouchableOpacity key={expense.id} style={[styles.expenseItem, {borderLeftColor: '#F44336'}]}
+            {!isFormVisible && <TouchableOpacity key={expense.id} style={[styles.expenseItem, { borderLeftColor: '#F44336' }]}
                 onPress={() => setIsFormVisible(!isFormVisible)}>
-                <Text style={[styles.expenseAmount,dynamicAmountColorStyle]}>{expense.amount}</Text>
+                <Text style={[styles.expenseAmount, dynamicAmountColorStyle]}>{expense.amount}</Text>
                 <Text style={styles.expenseType}>{expense.description}</Text>
-                <Text style={styles.expenseDate}>{formatDate(expense.dueDate)}</Text>
-                <Text style={[styles.expenseAmount, dynamicAmountColorStyle]}>{expense.status}</Text>
+                <Text style={styles.expenseDate}>{formatDate(expense.transactionDate || expense.dueDate)}</Text>
+                <Text style={[styles.status, dynamicAmountColorStyle]}>{expense.status}</Text>
 
             </TouchableOpacity>}
             {isFormVisible && <FormExpense expense={expense} setIsFormVisible={setIsFormVisible} />}
@@ -75,15 +75,24 @@ export const styles = StyleSheet.create({
     expenseType: {
         fontSize: 18,
         fontWeight: '500',
+        width: '35%'
     },
     expenseAmount: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#4CAF50',
+        width: '25%'
+    },
+    status: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#4CAF50',
+        width: '25%'
     },
     expenseDate: {
         fontSize: 16,
         color: '#757575', // Cor suave para as datas
+        width: '20%'
     },
     container: {
         padding: 20,

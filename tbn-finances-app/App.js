@@ -7,6 +7,7 @@ import { userAuthService } from './src/services/UserAuthService';
 import { userService } from './src/services/UserService';
 import { AccountProvider } from './src/providers/AccountProvider';
 import { ActivityIndicator } from 'react-native';
+import { accountRepository } from './src/repositories/AccountRepository';
 
 
 function App() {
@@ -23,9 +24,10 @@ function App() {
 
   useEffect(() => {
     if (!userAuth) return;
-    const unsubscribe = userService.repository.observeUserByUid(userAuth.uid, (userData) => {
-      const setAccount = userData?.accountSelected ? userData?.accountSelected : '';
-      setAccountSelected(setAccount);
+    const unsubscribe = userService.repository.observeUserByUid(userAuth.uid,async (userData) => {
+      const accounId = userData?.accountSelected ? userData?.accountSelected : '';
+      const account = await accountRepository.getAccountById(accounId)
+      setAccountSelected(account);
       setLoading(false)
     })
     return () => unsubscribe();

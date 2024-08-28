@@ -4,12 +4,13 @@ import { useUser } from '../../providers/UserProvider';
 import { AccountEntity } from '../../entity/AccountEntity';
 import { FormAccount } from './components/FormAccount';
 import { accountService } from '../../services/AccountService';
+import { accountTypeRepository } from '../../repositories/AccountTypeRepository';
 
 export const AccountScreen = () => {
   const { user } = useUser();
   const [accounts, setAccounts] = useState([]);
-  const [newAccountData, setNewAccountData] = useState(new AccountEntity('organization'));
-  const [isLoading, setIsLoading] = useState(true);
+  const [newAccountData, setNewAccountData] = useState(new AccountEntity());
+  const [loadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {
     newAccountData.adminId = user.uid;
@@ -18,7 +19,7 @@ export const AccountScreen = () => {
   }, [newAccountData]);
 
   useEffect(() => {
-    const unsubscribe = accountService.getAccountsByUserId(user, setAccounts, setIsLoading);
+    const unsubscribe = accountService.getAccountsByUserId(user, setAccounts, setIsLoadingUser);
     return () => unsubscribe();
   }, [user]);
 
@@ -36,7 +37,9 @@ export const AccountScreen = () => {
         accountData={newAccountData}
         expand={false}
       />
-      {isLoading ? (
+      {accounts.length > 0 && <Text style={styles.title}> Lista de Contas e Eventos</Text>}
+
+      {loadingUser ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
         <FlatList
@@ -74,5 +77,12 @@ const styles = StyleSheet.create({
   },
   loading: {
     marginTop: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginVertical: 20,
+    textAlign: 'center',
+    color: '#333',
   },
 });

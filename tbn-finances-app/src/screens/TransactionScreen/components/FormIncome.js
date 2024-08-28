@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert, StyleSheet, Text } from 'react-native';
-import { Income } from '../../../entity/Income';
+import { IncomeEntity } from '../../../entity/IncomeEntity';
 import { IncomeInputType } from './input/IncomeInputType';
 import { IncomeInputDonnorName } from './input/IncomeInputDonnorName';
 import { IncomeInputAmount } from './input/IncomeInputAmount';
@@ -15,17 +15,17 @@ import { transactionRepository } from '../../../repositories/TransactionReposito
 import { useAccount } from '../../../providers/AccountProvider';
 
 
-export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible }) {
-    const [income, setIncome] = useState(incomeItem || new Income());
+export function FormIncome({ income: incomeItem, setIsFormVisible }) {
     const { account } = useAccount();
+    const [income, setIncome] = useState(incomeItem || new IncomeEntity(account.name));
 
-     
+
 
     const formValidateAmount = (income) => !income.amount || isNaN(income.amount) || income.amount <= 0;
-    const formValidateType = (income) => !income.type;
+    const formValidateType = (income) => !income?.type?.value;
     const formValidateIsRecurrence = (income) => !income.isRecurrence && !income.transactionDate;
     const formValidate = () => formValidateAmount(income) || formValidateType(income) || formValidateIsRecurrence(income)
-    const isRecurrence = () => income.id && income.type === 'oferta_mensal'
+    const isRecurrence = () => income.id && income.type.action === 'recurrente'
     const isUpdate = () => income.id
     const validateForm = () => {
         const title = 'Erro';
@@ -50,16 +50,16 @@ export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible
 
             try {
                 if (isRecurrence()) {
-                    await transactionRepository(account).income.handleRecurrenceUpdate(income)
-                }else if (isUpdate()) {
+                    await transactionRepository(account.id).handleRecurrenceUpdate(income)
+                } else if (isUpdate()) {
                     income.lastUpdateDate = new Date()
-                    await transactionRepository(account).income.updateIncome(income)
+                    await transactionRepository(account.id).income.updateIncome(income)
                 } else {
                     income.creationDate = new Date()
-                    await transactionRepository(account).income.addIncome(income);
+                    await transactionRepository(account.id).income.addIncome(income);
                 }
 
-                setIncome(new Income()); // Reinicie o formulário
+                setIncome(new IncomeEntity(account.name)); // Reinicie o formulário
                 setIsFormVisible(false); // Esconda o formulário
             } catch (e) {
                 console.error("Erro ao adicionar documento: ", e);
@@ -68,12 +68,14 @@ export function FormIncome({ income: incomeItem, isFormVisible, setIsFormVisible
         }
     };
 
+
+
     return <View style={styles.form}>
-        <Text style={styles.title}>{income.id ? 'Detalhes da ' : 'Adicionar'} Oferta</Text>
+        <Text style={styles.title}>{income.id ? 'Detalhes ' + income.description : 'Adicionar Renda'}</Text>
 
-        <IncomeInputType income={income} setIncome={setIncome} />
+        <IncomeInputType accountData={account} income={income} setIncome={setIncome} />
 
-        <IncomeInputDonnorName isVisible={income.type !== 'oferta_alcada'} income={income} setIncome={setIncome} />
+        <IncomeInputDonnorName isVisible={income.type.action !== 'unique_default'} income={income} setIncome={setIncome} />
 
         <IncomeInputAmount income={income} setIncome={setIncome} />
 

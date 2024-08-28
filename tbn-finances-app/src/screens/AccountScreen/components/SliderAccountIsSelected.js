@@ -9,19 +9,19 @@ const statusOptions = [
   { label: 'Selectionado', value: true, active: false, color: 'blue' },
 ];
 
-export const SliderAccountIsSelected = ({ accountData }) => {
+export const SliderAccountIsSelected = ({ accountData, disabled = false, stylesWidth = { width: 'auto' }, stylesPaddingHorizontal = { paddingHorizontal: 40 } }) => {
   const { user, } = useUser();
   const { account, updateAccount } = useAccount()
   const [accountSelected, setAccountSelected] = useState(accountData?.id && account === accountData?.id);
 
   useEffect(() => {
-    setAccountSelected(accountData?.id && account === accountData?.id);
+    setAccountSelected(accountData?.id && account.id === accountData?.id);
   }, [account])
 
   const updateAccountSelected = () => {
-    if (!accountSelected && accountData.id && account !== accountData.id) {
+    if (!accountSelected && accountData.id && account.id !== accountData.id) {
       userService.updateAccountSelected(user.uid, accountData.id)
-        .then(() => updateAccount(accountData.id));
+        .then(() => updateAccount(accountData));
 
     }
   }
@@ -32,12 +32,14 @@ export const SliderAccountIsSelected = ({ accountData }) => {
   };
 
   return (
-    <View style={styles.sliderContainer}>
+    <View style={[styles.sliderContainer, stylesWidth]}>
       {statusOptions.map((option) => (
         <TouchableOpacity
           key={option.value}
+          disabled={disabled}
           style={[
             styles.sliderOption,
+            stylesPaddingHorizontal,
             accountSelected ? { ...styles.activeOption, backgroundColor: getBackgroundColor(option.value) } : styles.inactiveOption
           ]}
           onPress={() => {
